@@ -1,4 +1,7 @@
 BonVoyage::Application.routes.draw do
+  match "/" => "voyage#response_xml", via: :post
+  match "/" => "voyage#validate_echostr", via: :get
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
