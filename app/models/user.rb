@@ -32,4 +32,8 @@ class User < ActiveRecord::Base
   def clear_position
     save_value :position, ''
   end
+
+  def at? position
+    self.position == position
+  end
 end
