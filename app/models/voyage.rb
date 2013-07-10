@@ -3,6 +3,7 @@ require 'xmlsimple'
 
 class Voyage
   REGISTER = "注册"
+  LEARN_SKILL = "学习技能"
 
   def self.response_xml message
     content = get_content message[:from], message[:content]
@@ -17,19 +18,43 @@ class Voyage
   end
 
   def self.get_content user_id, content
+    message = ""
     user = safe_find_user(user_id)
-    user.new_user content if safe_equal?(user.position, REGISTER)
+    if safe_equal?(user.position, REGISTER)
+      user.new_user content
+    elsif safe_equal?(user.position, LEARN_SKILL)
+      message += (user.learn_skill? content) ? "你成功学会了技能#{content}" : "学习技能失败\n技能不存在或者你已经学会此技能"
+    end
+
     if user.name.nil?
-      message = "你是新来的？取个名字吧。"
+      message += "你是新来的？取个名字吧。"
       user.save_value :position, REGISTER
-    else
-      message = "你好，" + user.name
-      user.save_value :position, ""
+      return message
     end
 
     if content == "状态"
       message = "姓名：" + user.name + "\n" +
           "等级：" + user.level.to_s
+    end
+
+    if content == "技能"
+      message += "拥有的技能：\n"
+      personal_skills = user.get_skills
+      personal_skills.each { |skill|
+        message += "#{skill.name}：Lv#{skill.level}"
+      }
+    end
+
+    if content == "学习技能"
+      message += "请选择你要学习的技能\n"
+      Skill.all.each { |skill|
+        message += "#{skill.name}\n"
+      }
+      user.save_value :position, LEARN_SKILL
+    end
+
+    if message == ""
+      message = "你好，" + user.name
     end
     message
   end
