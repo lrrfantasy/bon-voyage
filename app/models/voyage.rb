@@ -2,6 +2,8 @@
 require 'xmlsimple'
 
 class Voyage
+  REGISTER = "注册"
+
   def self.response_xml message
     content = get_content message[:from], message[:content]
     body_obj = {"ToUserName" => message[:from],
@@ -16,10 +18,10 @@ class Voyage
 
   def self.get_content user_id, content
     user = safe_find_user(user_id)
-    user.new_user content if safe_equal?(user.position, "Register name")
+    user.new_user content if safe_equal?(user.position, REGISTER)
     if user.name.nil?
       message = "你是新来的？取个名字吧。"
-      user.save_value :position, "Register name"
+      user.save_value :position, REGISTER
     else
       message = "你好，" + user.name
       user.save_value :position, ""
