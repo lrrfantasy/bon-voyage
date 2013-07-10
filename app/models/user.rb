@@ -6,4 +6,9 @@ class User < ActiveRecord::Base
     self.send method_name, value
     self.save
   end
+
+  def new_user name
+    save_value :name, name
+    save_value :level, 1
+  end
 end

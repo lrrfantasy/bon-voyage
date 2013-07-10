@@ -1,5 +1,6 @@
 #encoding: utf-8
 require 'xmlsimple'
+
 class Voyage
   def self.response_xml message
     content = get_content message[:from], message[:content]
@@ -15,18 +16,23 @@ class Voyage
 
   def self.get_content user_id, content
     user = safe_find_user(user_id)
-    user.save_value :name, content if safe_equal?(user.position, "Register name")
+    user.new_user content if safe_equal?(user.position, "Register name")
     if user.name.nil?
-      message = "你是新来的吧？取个名字吧。"
+      message = "你是新来的？取个名字吧。"
       user.save_value :position, "Register name"
     else
       message = "你好，" + user.name
       user.save_value :position, ""
     end
+
+    if content == "状态"
+      message = "姓名：" + user.name + "\n" +
+          "等级：" + user.level.to_s
+    end
     message
   end
 
-  def self.safe_find_user(user_id)
+  def self.safe_find_user user_id
     user = User.where(:user_id => user_id).first
     user = User.create(user_id: user_id) if user.nil?
     user
@@ -55,7 +61,7 @@ class Voyage
     obj
   end
 
-  def self.safe_equal?(variable, value)
+  def self.safe_equal? variable, value
     variable.nil? ? false : variable == value
   end
 end
