@@ -2,14 +2,20 @@
 require 'xmlsimple'
 class Voyage
   def self.response_xml message
+    content = get_content message[:from], message[:content]
     body_obj = { "ToUserName" => message[:from],
                  "FromUserName" => message[:to],
                  "CreateTime" => DateTime.now.to_i.to_s,
                  "MsgType" => "text",
-                 "Content" => "hello" + message[:content],
+                 "Content" => content,
                  "MsgId" => "1234567890123459"
     }
     body_obj.to_xml root: "xml"
+  end
+
+  def self.get_content user_id, content
+    user = User.where(:user_id => user_id).first
+    user.name
   end
 
   def self.parse xml
