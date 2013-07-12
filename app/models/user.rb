@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
 
   def learn_skill? skill_name
     successful = false
-    if PersonalSkill.where(:user_id => self.user_id, :name => skill_name).empty? && Skill.where(:name => skill_name)
+    if PersonalSkill.where(:user_id => self.user_id, :name => skill_name).empty? && !Skill.where(:name => skill_name).empty?
       PersonalSkill.create(:user_id => self.user_id, :name => skill_name, :level => 1)
       successful = true
     end
