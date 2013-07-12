@@ -4,6 +4,7 @@ class CreateUsers < ActiveRecord::Migration
       t.string :user_id
       t.string :name
       t.integer :level
+      t.string :sys_stat
       t.string :position
 
       t.timestamps

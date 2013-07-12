@@ -4,6 +4,7 @@ require 'xmlsimple'
 class Voyage
   REGISTER = '注册'
   LEARN_SKILL = '学习技能'
+  GO_OUT = '出城'
 
   def self.response_xml message
     content = get_content message[:from], message[:content]
@@ -23,7 +24,7 @@ class Voyage
 
     if user.name.nil? && !user.at?(REGISTER)
       message += '你是新来的？取个名字吧。'
-      user.save_value :position, REGISTER
+      user.save_value :sys_stat, REGISTER
       return message
     end
 
@@ -31,11 +32,12 @@ class Voyage
       user.new_user content
     elsif user.at? LEARN_SKILL
       message += user.learn_skill content
+    elsif user.at? GO_OUT
+      message += user.go_to content
     end
 
     if content == '状态'
-      message = "姓名：#{user.name}\n" +
-          "等级：#{user.level.to_s}"
+      message += user.get_stat
     elsif content == '技能'
       message += "拥有的技能：\n"
       personal_skills = user.get_skills
@@ -48,15 +50,25 @@ class Voyage
         Skill.all.each { |skill|
           message += "#{skill.name}\n"
         }
-        user.save_value :position, LEARN_SKILL
+        user.save_value :sys_stat, LEARN_SKILL
       else
         message += user.learn_skill match[1].strip
       end
-    #TODO this is a GM function
+      #TODO this is a GM function
     elsif !(match = (content.match /^技能经验 (.+) (.+)/)).nil?
       skill_name = match[1]
       exp = match[2]
       message += user.exp_skill skill_name, exp
+    elsif !(match = (content.match /^出城( .+)?$/)).nil?
+      if match[1].nil?
+        message += "请选择你要去的城市\n"
+        City.all.reject { |city| city.name == user.position }.each { |city|
+          message += "#{city.name}\n"
+        }
+        user.save_value :sys_stat, GO_OUT
+      else
+        message += user.go_to match[1].strip
+      end
     end
 
     if message == ''
@@ -67,7 +79,7 @@ class Voyage
 
   def self.safe_find_user user_id
     user = User.where(:user_id => user_id).first
-    user = User.create(user_id: user_id, position: '') if user.nil?
+    user = User.create(user_id: user_id, sys_stat: '') if user.nil?
     user
   end
 

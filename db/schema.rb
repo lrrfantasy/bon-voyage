@@ -11,15 +11,23 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130712025203) do
+ActiveRecord::Schema.define(:version => 20130712085905) do
+
+  create_table "cities", :force => true do |t|
+    t.string   "name"
+    t.float    "latitude"
+    t.float    "longitude"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
   create_table "personal_skills", :force => true do |t|
     t.string   "name"
     t.integer  "level"
     t.string   "user_id"
+    t.integer  "exp"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
-    t.integer  "exp"
   end
 
   create_table "skills", :force => true do |t|
@@ -34,6 +42,7 @@ ActiveRecord::Schema.define(:version => 20130712025203) do
     t.string   "user_id"
     t.string   "name"
     t.integer  "level"
+    t.string   "sys_stat"
     t.string   "position"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
