@@ -40,7 +40,7 @@ class Voyage
       message += "拥有的技能：\n"
       personal_skills = user.get_skills
       personal_skills.each { |skill|
-        message += "#{skill.name}：Lv#{skill.level}\n"
+        message += "#{skill.name}：Lv.#{skill.level} Exp:#{skill.exp}/#{skill.level**2*100}\n"
       }
     elsif !(match = (content.match /^学习技能( .+)?$/)).nil?
       if match[1].nil?
@@ -52,6 +52,11 @@ class Voyage
       else
         message += user.learn_skill match[1].strip
       end
+    #TODO this is a GM function
+    elsif !(match = (content.match /^技能经验 (.+) (.+)/)).nil?
+      skill_name = match[1]
+      exp = match[2]
+      message += user.exp_skill skill_name, exp
     end
 
     if message == ''

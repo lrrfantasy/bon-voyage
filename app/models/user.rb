@@ -23,7 +23,7 @@ class User < ActiveRecord::Base
   def learn_skill skill_name
     message = "学习技能失败\n技能不存在或者你已经学会此技能"
     if PersonalSkill.where(:user_id => self.user_id, :name => skill_name).empty? && !Skill.where(:name => skill_name).empty?
-      PersonalSkill.create(:user_id => self.user_id, :name => skill_name, :level => 1)
+      PersonalSkill.create(:user_id => self.user_id, :name => skill_name, :level => 1, :exp => 0)
       message = "你成功学会了技能：#{skill_name}"
     end
     clear_position
@@ -36,5 +36,10 @@ class User < ActiveRecord::Base
 
   def at? position
     self.position == position
+  end
+
+  def exp_skill skill_name, exp
+    skill = PersonalSkill.where(:user_id => self.user_id, :name => skill_name).first
+    skill.receive_exp exp
   end
 end

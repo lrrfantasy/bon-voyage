@@ -4,6 +4,7 @@ class CreatePersonalSkills < ActiveRecord::Migration
       t.string :name
       t.integer :level
       t.string :user_id
+      t.integer :exp
 
       t.timestamps
     end
