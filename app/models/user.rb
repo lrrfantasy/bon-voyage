@@ -1,3 +1,4 @@
+#encoding: utf-8
 class User < ActiveRecord::Base
   has_many :personal_skills
 
@@ -19,14 +20,14 @@ class User < ActiveRecord::Base
     PersonalSkill.where(:user_id => self.user_id)
   end
 
-  def learn_skill? skill_name
-    successful = false
+  def learn_skill skill_name
+    message = "学习技能失败\n技能不存在或者你已经学会此技能"
     if PersonalSkill.where(:user_id => self.user_id, :name => skill_name).empty? && !Skill.where(:name => skill_name).empty?
       PersonalSkill.create(:user_id => self.user_id, :name => skill_name, :level => 1)
-      successful = true
+      message = "你成功学会了技能：#{skill_name}"
     end
     clear_position
-    successful
+    message
   end
 
   def clear_position

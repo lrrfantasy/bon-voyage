@@ -30,7 +30,7 @@ class Voyage
     if user.at? REGISTER
       user.new_user content
     elsif user.at? LEARN_SKILL
-      message += (user.learn_skill? content) ? "你成功学会了技能：#{content}" : "学习技能失败\n技能不存在或者你已经学会此技能"
+      message += user.learn_skill content
     end
 
     if content == '状态'
@@ -42,12 +42,16 @@ class Voyage
       personal_skills.each { |skill|
         message += "#{skill.name}：Lv#{skill.level}\n"
       }
-    elsif content == '学习技能'
-      message += "请选择你要学习的技能\n"
-      Skill.all.each { |skill|
-        message += "#{skill.name}\n"
-      }
-      user.save_value :position, LEARN_SKILL
+    elsif !(match = (content.match /^学习技能( .+)?$/)).nil?
+      if match[1].nil?
+        message += "请选择你要学习的技能\n"
+        Skill.all.each { |skill|
+          message += "#{skill.name}\n"
+        }
+        user.save_value :position, LEARN_SKILL
+      else
+        message += user.learn_skill match[1].strip
+      end
     end
 
     if message == ''
