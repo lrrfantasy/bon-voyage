@@ -2,7 +2,6 @@ class CreatePersonalActions < ActiveRecord::Migration
   def change
     create_table :personal_actions do |t|
       t.integer :user_id
-      t.string :user_wechat_id
       t.string :status
       t.string :from
       t.string :to
