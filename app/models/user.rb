@@ -50,19 +50,36 @@ class User < ActiveRecord::Base
         "位置：#{self.position}"
   end
 
-  def go_to city
+  def go_to city, start_time
     message = ''
     if city == self.position
       message += "你已经在#{city}"
+      clear_sys_stat
     elsif City.where(:name => city).empty?
       message += '没有找到该城市'
+      clear_sys_stat
     else
       distance = City.where(:name => self.position).first.get_dist city
       message += "从#{self.position}到#{city}有#{distance}里\n"
-      save_value :position, city
-      message += "你已移动至#{city}"
+      action = PersonalAction.where(:user_id => self.user_id).first
+      action.move_city self.position, city, start_time, (distance/100).to_i
     end
-    clear_sys_stat
+    message
+  end
+
+  def check_action start_time
+    message = ''
+    action = PersonalAction.where(:user_id => self.user_id).first
+    if action.status == '移动'
+      if start_time.to_i >= action.start_time.to_i + action.last_time.to_i
+        message += "你已移动到#{action.to}"
+        save_value :position, action.to
+        clear_sys_stat
+      else
+        remaining_time = action.start_time.to_i + action.last_time.to_i - start_time.to_i
+            message += "你正在从#{action.from}到#{action.to}的路上，还要#{remaining_time}秒到达"
+      end
+    end
     message
   end
 end

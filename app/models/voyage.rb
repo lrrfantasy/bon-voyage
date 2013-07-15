@@ -7,7 +7,7 @@ class Voyage
   GO_OUT = '出城'
 
   def self.response_xml message
-    content = get_content message[:from], message[:content]
+    content = get_content message[:from], message[:content], message[:created_at]
     body_obj = {"ToUserName" => message[:from],
                 "FromUserName" => message[:to],
                 "CreateTime" => DateTime.now.to_i.to_s,
@@ -18,7 +18,7 @@ class Voyage
     body_obj.to_xml root: 'xml'
   end
 
-  def self.get_content user_id, content
+  def self.get_content user_id, content, start_time
     message = ''
     user = safe_find_user(user_id)
 
@@ -33,7 +33,10 @@ class Voyage
     elsif user.at? LEARN_SKILL
       message += user.learn_skill content
     elsif user.at? GO_OUT
-      message += user.go_to content
+      message += user.go_to content, start_time
+    elsif user.at? '行动'
+      message += user.check_action start_time
+      return message
     end
 
     if content == '状态'
@@ -67,7 +70,7 @@ class Voyage
         }
         user.save_value :sys_stat, GO_OUT
       else
-        message += user.go_to match[1].strip
+        message += user.go_to match[1].strip, start_time
       end
     end
 
@@ -79,7 +82,10 @@ class Voyage
 
   def self.safe_find_user user_id
     user = User.where(:user_id => user_id).first
-    user = User.create(user_id: user_id, sys_stat: '') if user.nil?
+    if user.nil?
+      user = User.create(user_id: user_id, sys_stat: '')
+      PersonalAction.create(user_id: user_id)
+    end
     user
   end
 
