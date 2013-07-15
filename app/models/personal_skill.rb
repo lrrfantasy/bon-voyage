@@ -1,6 +1,7 @@
 #encoding: utf-8
 class PersonalSkill < ActiveRecord::Base
-  attr_accessible :level, :name, :user_wechat_id, :exp
+  belongs_to :user
+  attr_accessible :level, :name, :exp, :user_id
 
   def receive_exp exp
     message = "#{self.name}获得经验#{exp}\n"
