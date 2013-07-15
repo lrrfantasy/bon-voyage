@@ -1,5 +1,6 @@
 #encoding: utf-8
 class User < ActiveRecord::Base
+  has_one :personal_action
   has_many :personal_skills
 
   attr_accessible :user_wechat_id, :level, :name, :sys_stat, :position
@@ -64,7 +65,7 @@ class User < ActiveRecord::Base
       message += "从#{self.position}到#{city}有#{distance}里\n"
       message += "需要用时#{cost_time}秒"
 
-      action = PersonalAction.where(:user_wechat_id => self.user_wechat_id).first
+      action = self.personal_action
       action.move_city self.position, city, start_time, cost_time
       save_value :sys_stat, '行动'
     end
@@ -73,7 +74,7 @@ class User < ActiveRecord::Base
 
   def check_action start_time
     message = ''
-    action = PersonalAction.where(:user_wechat_id => self.user_wechat_id).first
+    action = self.personal_action
     if action.status == '移动'
       if start_time.to_i >= action.start_time.to_i + action.last_time.to_i
         message += "你已移动到#{action.to}"

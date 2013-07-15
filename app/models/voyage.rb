@@ -84,7 +84,8 @@ class Voyage
     user = User.where(:user_wechat_id => user_wechat_id).first
     if user.nil?
       user = User.create(user_wechat_id: user_wechat_id, sys_stat: '')
-      PersonalAction.create(user_wechat_id: user_wechat_id)
+      user.build_personal_action(user_wechat_id: user_wechat_id)
+      #PersonalAction.create(user_wechat_id: user_wechat_id)
     end
     user
   end

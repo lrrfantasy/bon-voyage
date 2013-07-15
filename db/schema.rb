@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(:version => 20130715065431) do
   end
 
   create_table "personal_actions", :force => true do |t|
+    t.integer  "user_id"
     t.string   "user_wechat_id"
     t.string   "status"
     t.string   "from"
