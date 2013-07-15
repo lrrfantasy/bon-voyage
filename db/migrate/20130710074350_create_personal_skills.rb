@@ -3,7 +3,7 @@ class CreatePersonalSkills < ActiveRecord::Migration
     create_table :personal_skills do |t|
       t.string :name
       t.integer :level
-      t.string :user_id
+      t.string :user_wechat_id
       t.integer :exp
 
       t.timestamps

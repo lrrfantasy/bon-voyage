@@ -18,9 +18,9 @@ class Voyage
     body_obj.to_xml root: 'xml'
   end
 
-  def self.get_content user_id, content, start_time
+  def self.get_content user_wechat_id, content, start_time
     message = ''
-    user = safe_find_user(user_id)
+    user = safe_find_user(user_wechat_id)
 
     if user.name.nil? && !user.at?(REGISTER)
       message += '你是新来的？取个名字吧。'
@@ -80,11 +80,11 @@ class Voyage
     message
   end
 
-  def self.safe_find_user user_id
-    user = User.where(:user_id => user_id).first
+  def self.safe_find_user user_wechat_id
+    user = User.where(:user_wechat_id => user_wechat_id).first
     if user.nil?
-      user = User.create(user_id: user_id, sys_stat: '')
-      PersonalAction.create(user_id: user_id)
+      user = User.create(user_wechat_id: user_wechat_id, sys_stat: '')
+      PersonalAction.create(user_wechat_id: user_wechat_id)
     end
     user
   end

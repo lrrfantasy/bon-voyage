@@ -22,7 +22,7 @@ ActiveRecord::Schema.define(:version => 20130715065431) do
   end
 
   create_table "personal_actions", :force => true do |t|
-    t.string   "user_id"
+    t.string   "user_wechat_id"
     t.string   "status"
     t.string   "from"
     t.string   "to"
@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(:version => 20130715065431) do
   create_table "personal_skills", :force => true do |t|
     t.string   "name"
     t.integer  "level"
-    t.string   "user_id"
+    t.string   "user_wechat_id"
     t.integer  "exp"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
@@ -50,7 +50,7 @@ ActiveRecord::Schema.define(:version => 20130715065431) do
   end
 
   create_table "users", :force => true do |t|
-    t.string   "user_id"
+    t.string   "user_wechat_id"
     t.string   "name"
     t.integer  "level"
     t.string   "sys_stat"

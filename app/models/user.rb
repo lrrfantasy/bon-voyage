@@ -2,7 +2,7 @@
 class User < ActiveRecord::Base
   has_many :personal_skills
 
-  attr_accessible :user_id, :level, :name, :sys_stat, :position
+  attr_accessible :user_wechat_id, :level, :name, :sys_stat, :position
 
   def save_value property, value
     method_name = (property.to_s + '=').to_sym
@@ -18,13 +18,13 @@ class User < ActiveRecord::Base
   end
 
   def get_skills
-    PersonalSkill.where(:user_id => self.user_id)
+    PersonalSkill.where(:user_wechat_id => self.user_wechat_id)
   end
 
   def learn_skill skill_name
     message = "学习技能失败\n技能不存在或者你已经学会此技能"
-    if PersonalSkill.where(:user_id => self.user_id, :name => skill_name).empty? && !Skill.where(:name => skill_name).empty?
-      PersonalSkill.create(:user_id => self.user_id, :name => skill_name, :level => 1, :exp => 0)
+    if PersonalSkill.where(:user_wechat_id => self.user_wechat_id, :name => skill_name).empty? && !Skill.where(:name => skill_name).empty?
+      PersonalSkill.create(:user_wechat_id => self.user_wechat_id, :name => skill_name, :level => 1, :exp => 0)
       message = "你成功学会了技能：#{skill_name}"
     end
     clear_sys_stat
@@ -40,7 +40,7 @@ class User < ActiveRecord::Base
   end
 
   def exp_skill skill_name, exp
-    skill = PersonalSkill.where(:user_id => self.user_id, :name => skill_name).first
+    skill = PersonalSkill.where(:user_wechat_id => self.user_wechat_id, :name => skill_name).first
     skill.receive_exp exp
   end
 
@@ -64,7 +64,7 @@ class User < ActiveRecord::Base
       message += "从#{self.position}到#{city}有#{distance}里\n"
       message += "需要用时#{cost_time}秒"
 
-      action = PersonalAction.where(:user_id => self.user_id).first
+      action = PersonalAction.where(:user_wechat_id => self.user_wechat_id).first
       action.move_city self.position, city, start_time, cost_time
       save_value :sys_stat, '行动'
     end
@@ -73,7 +73,7 @@ class User < ActiveRecord::Base
 
   def check_action start_time
     message = ''
-    action = PersonalAction.where(:user_id => self.user_id).first
+    action = PersonalAction.where(:user_wechat_id => self.user_wechat_id).first
     if action.status == '移动'
       if start_time.to_i >= action.start_time.to_i + action.last_time.to_i
         message += "你已移动到#{action.to}"

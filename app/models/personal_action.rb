@@ -1,6 +1,6 @@
 #encoding: utf-8
 class PersonalAction < ActiveRecord::Base
-  attr_accessible :from, :last_time, :start_time, :status, :to, :user_id
+  attr_accessible :from, :last_time, :start_time, :status, :to, :user_wechat_id
 
   def move_city from, to, start_time, last_time
     self.status = "移动"

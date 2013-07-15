@@ -1,7 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  user_id: MyString
+  user_wechat_id: MyString
   status: MyString
   from: MyString
   to: MyString
@@ -9,7 +9,7 @@ one:
   last_time: MyString
 
 two:
-  user_id: MyString
+  user_wechat_id: MyString
   status: MyString
   from: MyString
   to: MyString
