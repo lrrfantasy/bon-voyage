@@ -60,9 +60,13 @@ class User < ActiveRecord::Base
       clear_sys_stat
     else
       distance = City.where(:name => self.position).first.get_dist city
+      cost_time = (distance/100).to_i
       message += "从#{self.position}到#{city}有#{distance}里\n"
+      message += "需要用时#{cost_time}秒"
+
       action = PersonalAction.where(:user_id => self.user_id).first
-      action.move_city self.position, city, start_time, (distance/100).to_i
+      action.move_city self.position, city, start_time, cost_time
+      save_value :sys_stat, '行动'
     end
     message
   end
@@ -77,7 +81,7 @@ class User < ActiveRecord::Base
         clear_sys_stat
       else
         remaining_time = action.start_time.to_i + action.last_time.to_i - start_time.to_i
-            message += "你正在从#{action.from}到#{action.to}的路上，还要#{remaining_time}秒到达"
+        message += "你正在从#{action.from}到#{action.to}的路上，还要#{remaining_time}秒到达"
       end
     end
     message

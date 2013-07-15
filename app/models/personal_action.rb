@@ -9,8 +9,5 @@ class PersonalAction < ActiveRecord::Base
     self.start_time = start_time
     self.last_time = last_time.to_s
     self.save
-
-    user = User.where(:user_id => self.user_id).first
-    user.save_value :sys_stat, '行动'
   end
 end
