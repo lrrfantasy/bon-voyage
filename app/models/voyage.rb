@@ -35,6 +35,11 @@ class Voyage
     elsif user.at? GO_OUT
       message += user.go_to content, start_time
     elsif user.at? '行动'
+      #TODO GM function
+      if content == '秒到'
+        user.personal_action.last_time = '0'
+        user.personal_action.save
+      end
       wrap = user.check_action start_time
       message += wrap[0]
       return message if !wrap[1]
