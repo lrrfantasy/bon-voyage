@@ -98,10 +98,14 @@ class User < ActiveRecord::Base
     message = ''
     product = Product.where(:name => product_name).first
     product_in_city = City.where(:name => self.position).first.city_product_relations.where(:product_id => product.id).first
+    buy_price = product_in_city.base_price
+    money_cost = amount.to_i * buy_price
     if product_in_city.base_amount == 0
       message += "市场上没有#{product_name}"
     elsif amount.to_i > product_in_city.base_amount
       message += "市场上#{product_name}不够多"
+    elsif self.money < money_cost
+      message += "你的钱不够多"
     else
       unless self.user_product_relations.where(:product_id => product.id).empty?
         relation = self.user_product_relations.where(:product_id => product.id).first
@@ -111,7 +115,9 @@ class User < ActiveRecord::Base
       else
         self.user_product_relations.create(user_id: self.id, product_id: product.id, amount: amount, price: product_in_city.base_price)
       end
-      message += "你买入了#{product_name}#{amount}个"
+      self.money -= money_cost
+      self.save
+      message += "你买入了#{product_name}#{amount}个\n支出了金钱#{money_cost}"
     end
     clear_sys_stat
     message
@@ -122,6 +128,7 @@ class User < ActiveRecord::Base
     product = Product.where(:name => product_name).first
     city = City.where(:name => self.position).first
     sell_price = city.sell_price product
+    money_earn = amount.to_i * sell_price
 
     relation = self.user_product_relations.where(:product_id => product.id).first
     if amount.to_i > relation.amount
@@ -130,10 +137,11 @@ class User < ActiveRecord::Base
       relation.amount -= amount.to_i
       relation.save
       relation.delete if relation.amount == 0
-      self.money += amount.to_i * sell_price
+      self.money += money_earn
       self.save
+      message += "你售出了#{product_name}#{amount}个\n收入了金钱#{money_earn}"
     end
-
+    clear_sys_stat
     message
   end
 end

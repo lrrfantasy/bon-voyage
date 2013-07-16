@@ -68,7 +68,9 @@ class Voyage
     elsif !(match = (content.match /^出城( .+)?$/)).nil?
       if match[1].nil?
         message += "请选择你要去的城市\n"
-        City.all.reject { |city| city.name == user.position }.each { |city|
+        City.all.reject { |city|
+          city.name == user.position
+        }.each { |city|
           message += "#{city.name}\n"
         }
         user.save_value :sys_stat, GO_OUT
