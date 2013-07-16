@@ -6,18 +6,6 @@ class Voyage
   LEARN_SKILL = '学习技能'
   GO_OUT = '出城'
 
-  def self.response_xml message
-    content = get_content message[:from], message[:content], message[:created_at]
-    body_obj = {"ToUserName" => message[:from],
-                "FromUserName" => message[:to],
-                "CreateTime" => DateTime.now.to_i.to_s,
-                "MsgType" => 'text',
-                "Content" => content,
-                "MsgId" => '1234567890123459'
-    }
-    body_obj.to_xml root: 'xml'
-  end
-
   def self.get_content user_wechat_id, content, start_time
     message = ''
     user = safe_find_user(user_wechat_id)
@@ -102,6 +90,18 @@ class Voyage
     user
   end
 
+  def self.response_xml message
+    content = get_content message[:from], message[:content], message[:created_at]
+    body_obj = {"ToUserName" => message[:from],
+                "FromUserName" => message[:to],
+                "CreateTime" => DateTime.now.to_i.to_s,
+                "MsgType" => 'text',
+                "Content" => content,
+                "MsgId" => '1234567890123459'
+    }
+    body_obj.to_xml root: 'xml'
+  end
+
   def self.parse xml
     parsed_xml = XmlSimple.xml_in(xml, "ForceArray" => false)
     if parsed_xml["MsgType"] == "event"
@@ -123,9 +123,5 @@ class Voyage
       }
     end
     obj
-  end
-
-  def self.safe_equal? variable, value
-    variable.nil? ? false : variable == value
   end
 end
