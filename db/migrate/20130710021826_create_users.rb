@@ -6,6 +6,7 @@ class CreateUsers < ActiveRecord::Migration
       t.integer :level
       t.string :sys_stat
       t.string :position
+      t.integer :money
 
       t.timestamps
     end

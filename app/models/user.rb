@@ -3,7 +3,9 @@ class User < ActiveRecord::Base
   has_one :personal_action
   has_many :personal_skills
 
-  attr_accessible :user_wechat_id, :level, :name, :sys_stat, :position
+  has_many :user_product_relations
+  has_many :products, :through => :user_product_relations
+  attr_accessible :user_wechat_id, :level, :name, :sys_stat, :position, :money
 
   def save_value property, value
     method_name = (property.to_s + '=').to_sym
@@ -15,6 +17,7 @@ class User < ActiveRecord::Base
     save_value :name, name
     save_value :level, 1
     save_value :position, '成都'
+    save_value :money, 500
     clear_sys_stat
   end
 
@@ -48,7 +51,8 @@ class User < ActiveRecord::Base
   def get_stat
     "姓名：#{self.name}\n" +
         "等级：#{self.level.to_s}\n" +
-        "位置：#{self.position}"
+        "位置：#{self.position}\n" +
+        "金钱：#{self.money}"
   end
 
   def go_to city, start_time
@@ -88,5 +92,51 @@ class User < ActiveRecord::Base
       end
     end
     [message, completed]
+  end
+
+  def buy_product product_name, amount
+    message = ''
+    product = Product.where(:name => product_name).first
+    product_in_city = City.where(:name => self.position).first.city_product_relations.where(:product_id => product.id).first
+    if product_in_city.base_amount == 0
+      message += "市场上没有#{product_name}"
+    elsif amount.to_i > product_in_city.base_amount
+      message += "市场上#{product_name}不够多"
+    else
+      unless self.user_product_relations.where(:product_id => product.id).empty?
+        relation = self.user_product_relations.where(:product_id => product.id).first
+        relation.price = (relation.price * relation.amount + product_in_city.base_price * amount.to_i) / (amount.to_i + relation.amount)
+        relation.amount += amount.to_i
+        relation.save
+      else
+        self.user_product_relations.create(user_id: self.id, product_id: product.id, amount: amount, price: product_in_city.base_price)
+      end
+      message += "你买入了#{product_name}#{amount}个"
+    end
+    clear_sys_stat
+    message
+  end
+
+  def sell_product product_name, amount
+    message = ''
+    product = Product.where(:name => product_name).first
+    product_in_city = City.where(:name => self.position).first.city_product_relations.where(:product_id => product.id).first
+    sell_price = product_in_city.base_price
+    if product_in_city.base_amount > 0
+      sell_price = (sell_price / 2).to_i
+    end
+
+    relation = self.user_product_relations.where(:product_id => product.id).first
+    if amount.to_i > relation.amount
+      message += "你没有足够的#{product_name}"
+    else
+      relation.amount -= amount.to_i
+      relation.save
+      relation.delete if relation.amount == 0
+      self.money += amount.to_i * sell_price
+      self.save
+    end
+
+    message
   end
 end

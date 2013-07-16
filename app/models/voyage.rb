@@ -5,6 +5,7 @@ class Voyage
   REGISTER = '注册'
   LEARN_SKILL = '学习技能'
   GO_OUT = '出城'
+  MARKET = '市场'
 
   def self.get_content user_wechat_id, content, start_time
     message = ''
@@ -22,6 +23,14 @@ class Voyage
       message += user.learn_skill content
     elsif user.at? GO_OUT
       message += user.go_to content, start_time
+    elsif user.at? MARKET
+      if !(match = (content.match /^买 (.+) (.+)/)).nil?
+        message += user.buy_product match[1], match[2]
+      elsif !(match = (content.match /^卖 (.+) (.+)/)).nil?
+        message += user.sell_product match[1], match[2]
+      elsif content == '返回'
+        user.clear_sys_stat
+      end
     elsif user.at? '行动'
       #TODO GM function
       if content == '秒到'
@@ -67,12 +76,23 @@ class Voyage
         message += user.go_to match[1].strip, start_time
       end
     elsif content == '市场'
-      City.where(:name => user.position).first.city_product_relations.all.reject { |relation|
+      message += "市场里的商品：\n"
+      all_products = City.where(:name => user.position).first.city_product_relations
+      all_products.all.reject { |relation|
         relation.base_amount == 0
-      }.each{ |relation|
+      }.each { |relation|
         prod = Product.where(:id => relation.product_id).first
-        message += "#{prod.name} #{prod.category} 数量：#{relation.base_amount} 价格：#{relation.base_price}金币\n"
+        message += "#{prod.name} #{prod.category} 数量：#{relation.base_amount} 价格：#{relation.base_price}\n"
       }
+      message += "*********\n你所拥有的商品：\n"
+
+      user.user_product_relations.each { |relation|
+        prod = Product.where(:id => relation.product_id).first
+        sell_price = all_products.where(:product_id => prod.id).first.base_price
+        sell_price = (sell_price / 2).to_i if all_products.where(:product_id => prod.id).first.base_amount > 0
+        message += "#{prod.name} #{prod.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
+      }
+      user.save_value :sys_stat, MARKET
     end
 
     if message == ''
