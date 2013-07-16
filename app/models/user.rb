@@ -107,7 +107,7 @@ class User < ActiveRecord::Base
     elsif self.money < money_cost
       message += "你的钱不够多"
     else
-      unless self.user_product_relations.where(:product_id => product.id).empty?
+      if self.user_product_relations.where(:product_id => product.id).first.present?
         relation = self.user_product_relations.where(:product_id => product.id).first
         relation.price = (relation.price * relation.amount + product_in_city.base_price * amount.to_i) / (amount.to_i + relation.amount)
         relation.amount += amount.to_i

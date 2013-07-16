@@ -24,7 +24,7 @@ class Voyage
     elsif user.at? GO_OUT
       message += user.go_to content, start_time
     elsif user.at? MARKET
-      if !(match = (content.match /^买 (.+) (.+)/)).nil?
+      if (match = (content.match /^买 (.+) (.+)/)).present?
         message += user.buy_product match[1], match[2]
       elsif !(match = (content.match /^卖 (.+) (.+)/)).nil?
         message += user.sell_product match[1], match[2]
@@ -61,11 +61,11 @@ class Voyage
         message += user.learn_skill match[1].strip
       end
       #TODO this is a GM function
-    elsif !(match = (content.match /^技能经验 (.+) (.+)/)).nil?
+    elsif (match = (content.match /^技能经验 (.+) (.+)/)).present?
       skill_name = match[1]
       exp = match[2]
       message += user.exp_skill skill_name, exp
-    elsif !(match = (content.match /^出城( .+)?$/)).nil?
+    elsif (match = (content.match /^出城( .+)?$/)).present?
       if match[1].nil?
         message += "请选择你要去的城市\n"
         City.all.reject { |city|
