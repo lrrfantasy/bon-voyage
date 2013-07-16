@@ -120,11 +120,8 @@ class User < ActiveRecord::Base
   def sell_product product_name, amount
     message = ''
     product = Product.where(:name => product_name).first
-    product_in_city = City.where(:name => self.position).first.city_product_relations.where(:product_id => product.id).first
-    sell_price = product_in_city.base_price
-    if product_in_city.base_amount > 0
-      sell_price = (sell_price / 2).to_i
-    end
+    city = City.where(:name => self.position).first
+    sell_price = city.sell_price product
 
     relation = self.user_product_relations.where(:product_id => product.id).first
     if amount.to_i > relation.amount

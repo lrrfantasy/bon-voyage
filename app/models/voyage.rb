@@ -77,20 +77,20 @@ class Voyage
       end
     elsif content == '市场'
       message += "市场里的商品：\n"
-      all_products = City.where(:name => user.position).first.city_product_relations
+      city = City.where(:name => user.position).first
+      all_products = city.city_product_relations
       all_products.all.reject { |relation|
         relation.base_amount == 0
       }.each { |relation|
-        prod = Product.where(:id => relation.product_id).first
-        message += "#{prod.name} #{prod.category} 数量：#{relation.base_amount} 价格：#{relation.base_price}\n"
+        product = Product.where(:id => relation.product_id).first
+        message += "#{product.name} #{product.category} 数量：#{relation.base_amount} 价格：#{relation.base_price}\n"
       }
       message += "*********\n你所拥有的商品：\n"
 
       user.user_product_relations.each { |relation|
-        prod = Product.where(:id => relation.product_id).first
-        sell_price = all_products.where(:product_id => prod.id).first.base_price
-        sell_price = (sell_price / 2).to_i if all_products.where(:product_id => prod.id).first.base_amount > 0
-        message += "#{prod.name} #{prod.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
+        product = Product.where(:id => relation.product_id).first
+        sell_price = city.sell_price product
+        message += "#{product.name} #{product.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
       }
       user.save_value :sys_stat, MARKET
     end
