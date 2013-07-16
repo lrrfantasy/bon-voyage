@@ -35,8 +35,9 @@ class Voyage
     elsif user.at? GO_OUT
       message += user.go_to content, start_time
     elsif user.at? '行动'
-      message += user.check_action start_time
-      return message
+      wrap = user.check_action start_time
+      message += wrap[0]
+      return message if !wrap[1]
     end
 
     if content == '状态'
