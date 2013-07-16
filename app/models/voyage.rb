@@ -72,6 +72,13 @@ class Voyage
       else
         message += user.go_to match[1].strip, start_time
       end
+    elsif content == '市场'
+      City.where(:name => user.position).first.city_product_relations.all.reject { |relation|
+        relation.base_amount == 0
+      }.each{ |relation|
+        prod = Product.where(:id => relation.product_id).first
+        message += "#{prod.name} #{prod.category} 数量：#{relation.base_amount} 价格：#{relation.base_price}金币\n"
+      }
     end
 
     if message == ''
