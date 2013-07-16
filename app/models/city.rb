@@ -1,4 +1,6 @@
 class City < ActiveRecord::Base
+  has_many :city_product_relations
+  has_many :products, :through => :city_product_relations
   attr_accessible :latitude, :longitude, :name
 
   def get_dist city

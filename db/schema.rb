@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130715065431) do
+ActiveRecord::Schema.define(:version => 20130716030237) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -19,6 +19,15 @@ ActiveRecord::Schema.define(:version => 20130715065431) do
     t.float    "longitude"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+  end
+
+  create_table "city_product_relations", :force => true do |t|
+    t.integer  "city_id"
+    t.integer  "product_id"
+    t.integer  "base_amount"
+    t.integer  "base_price"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
   end
 
   create_table "personal_actions", :force => true do |t|
@@ -41,6 +50,13 @@ ActiveRecord::Schema.define(:version => 20130715065431) do
     t.datetime "updated_at", :null => false
   end
 
+  create_table "products", :force => true do |t|
+    t.string   "name"
+    t.string   "category"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "skills", :force => true do |t|
     t.string   "name"
     t.text     "description"
@@ -55,8 +71,8 @@ ActiveRecord::Schema.define(:version => 20130715065431) do
     t.integer  "level"
     t.string   "sys_stat"
     t.string   "position"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
   end
 
 end

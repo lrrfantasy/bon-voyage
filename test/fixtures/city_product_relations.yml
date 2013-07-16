@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  city_id: 1
+  product_id: 1
+  base_amount: 1
+  base_price: 1
+
+two:
+  city_id: 1
+  product_id: 1
+  base_amount: 1
+  base_price: 1
