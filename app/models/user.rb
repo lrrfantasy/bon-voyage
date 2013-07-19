@@ -20,7 +20,7 @@ class User < ActiveRecord::Base
   def new_user name
     save_value :name, name
     save_value :level, 1
-    save_value :money, 500
+    save_value :money, 5000
     save_value :city, City.where(:name => '成都').first
     clear_sys_stat
   end
@@ -106,9 +106,10 @@ class User < ActiveRecord::Base
     product = Product.where(:name => product_name).first
     product_in_city = self.city.city_product_relations.where(:product_id => product.id).first
     money_cost = amount.to_i * product_in_city.base_price
+    available_amount = product_available_amount product, product_in_city
     if product_in_city.base_amount == 0
       message += "市场上没有#{product_name}"
-    elsif amount.to_i > product_in_city.base_amount
+    elsif amount.to_i > available_amount
       message += "市场上#{product_name}不够多"
     elsif self.money < money_cost
       message += "你的钱不够多"
@@ -159,5 +160,10 @@ class User < ActiveRecord::Base
     end
     clear_sys_stat
     message
+  end
+
+  def product_available_amount(product, city_product_relation)
+    purchasing = self.purchasings.where(:product_id => product.id).first
+    city_product_relation.base_amount - (purchasing.nil? ? 0 : purchasing.amount)
   end
 end
