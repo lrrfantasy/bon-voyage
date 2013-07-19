@@ -3,7 +3,7 @@ class PersonalSkill < ActiveRecord::Base
   belongs_to :user
   attr_accessible :level, :name, :exp, :user_id
 
-  def receive_exp exp
+  def receive_exp(exp)
     message = "#{self.name}获得经验#{exp}\n"
     self.exp += exp.to_i
     while self.exp >= self.level**2 * 100

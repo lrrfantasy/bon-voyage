@@ -11,13 +11,13 @@ class User < ActiveRecord::Base
   has_many :products, :through => :purchasings
   attr_accessible :user_wechat_id, :level, :name, :sys_stat, :money
 
-  def save_value property, value
+  def save_value(property, value)
     method_name = (property.to_s + '=').to_sym
     self.send method_name, value
     self.save
   end
 
-  def new_user name
+  def new_user(name)
     save_value :name, name
     save_value :level, 1
     save_value :money, 5000
@@ -29,7 +29,7 @@ class User < ActiveRecord::Base
     self.personal_skills
   end
 
-  def learn_skill skill_name
+  def learn_skill(skill_name)
     message = "学习技能失败\n技能不存在或者你已经学会此技能"
     if self.personal_skills.where(:name => skill_name).empty? && !Skill.where(:name => skill_name).empty?
       self.personal_skills.create(:name => skill_name, :level => 1, :exp => 0)
@@ -43,11 +43,11 @@ class User < ActiveRecord::Base
     save_value :sys_stat, ''
   end
 
-  def at? sys_stat
+  def at?(sys_stat)
     self.sys_stat == sys_stat
   end
 
-  def exp_skill skill_name, exp
+  def exp_skill(skill_name, exp)
     skill = self.personal_skills.where(:name => skill_name).first
     skill.receive_exp exp
   end
@@ -59,7 +59,7 @@ class User < ActiveRecord::Base
         "金钱：#{self.money}"
   end
 
-  def go_to city, start_time
+  def go_to(city, start_time)
     message = ''
     if city == self.city.name
       message += "你已经在#{city}"
@@ -80,7 +80,7 @@ class User < ActiveRecord::Base
     message
   end
 
-  def check_action start_time
+  def check_action(start_time)
     message = ''
     completed = false
     action = self.personal_action
@@ -101,7 +101,7 @@ class User < ActiveRecord::Base
     [message, completed]
   end
 
-  def buy_product product_name, amount
+  def buy_product(product_name, amount)
     message = ''
     product = Product.where(:name => product_name).first
     product_in_city = self.city.city_product_relations.where(:product_id => product.id).first
@@ -124,7 +124,7 @@ class User < ActiveRecord::Base
     message
   end
 
-  def purchase product, amount, buy_price
+  def purchase(product, amount, buy_price)
     if (relation = self.user_product_relations.where(:product_id => product.id).first).present?
       relation.price = (relation.price * relation.amount + buy_price * amount.to_i) / (amount.to_i + relation.amount)
       relation.amount += amount.to_i
@@ -141,7 +141,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def sell_product product_name, amount
+  def sell_product(product_name, amount)
     message = ''
     product = Product.where(:name => product_name).first
     money_earn = amount.to_i * self.city.sell_price(product)

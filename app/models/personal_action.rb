@@ -3,7 +3,7 @@ class PersonalAction < ActiveRecord::Base
   belongs_to :user
   attr_accessible :from, :last_time, :start_time, :status, :to, :user_id
 
-  def move_city from, to, start_time, last_time
+  def move_city(from, to, start_time, last_time)
     self.status = "移动"
     self.from = from
     self.to = to

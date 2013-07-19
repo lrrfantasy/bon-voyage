@@ -7,7 +7,7 @@ class Voyage
   GO_OUT = '出城'
   MARKET = '市场'
 
-  def self.get_content user_wechat_id, content, start_time
+  def self.get_content(user_wechat_id, content, start_time)
     message = ''
     user = safe_find_user(user_wechat_id)
 
@@ -104,7 +104,7 @@ class Voyage
     message
   end
 
-  def self.safe_find_user user_wechat_id
+  def self.safe_find_user(user_wechat_id)
     user = User.where(:user_wechat_id => user_wechat_id).first
     if user.nil?
       user = User.create(user_wechat_id: user_wechat_id, sys_stat: '')
@@ -113,7 +113,7 @@ class Voyage
     user
   end
 
-  def self.response_xml message
+  def self.response_xml(message)
     content = get_content message[:from], message[:content], message[:created_at]
     body_obj = {"ToUserName" => message[:from],
                 "FromUserName" => message[:to],
@@ -125,7 +125,7 @@ class Voyage
     body_obj.to_xml root: 'xml'
   end
 
-  def self.parse xml
+  def self.parse(xml)
     parsed_xml = XmlSimple.xml_in(xml, "ForceArray" => false)
     if parsed_xml["MsgType"] == "event"
       obj = {
