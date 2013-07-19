@@ -5,6 +5,9 @@ class User < ActiveRecord::Base
 
   has_many :user_product_relations
   has_many :products, :through => :user_product_relations
+
+  has_many :purchasings
+  has_many :products, :through => :purchasings
   attr_accessible :user_wechat_id, :level, :name, :sys_stat, :position, :money
 
   def save_value property, value
@@ -85,6 +88,9 @@ class User < ActiveRecord::Base
         message += "你已移动到#{action.to}\n"
         save_value :position, action.to
         completed = true
+
+        self.purchasings.each { |purchasing| purchasing.delete }
+
         clear_sys_stat
       else
         remaining_time = action.start_time.to_i + action.last_time.to_i - start_time.to_i
@@ -115,6 +121,15 @@ class User < ActiveRecord::Base
       else
         self.user_product_relations.create(user_id: self.id, product_id: product.id, amount: amount, price: product_in_city.base_price)
       end
+
+      if self.purchasings.where(:product_id => product.id).first.present?
+        purchasing = self.purchasings.where(:product_id => product.id).first
+        purchasing.amount += amount.to_i
+        purchasing.save
+      else
+        self.purchasings.create(user_id: self.id, product_id: product.id, amount: amount.to_i)
+      end
+
       self.money -= money_cost
       self.save
       message += "你买入了#{product_name}#{amount}个\n支出了金钱#{money_cost}"

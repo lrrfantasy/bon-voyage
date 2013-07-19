@@ -86,7 +86,9 @@ class Voyage
         relation.base_amount == 0
       }.each { |relation|
         product = Product.where(:id => relation.product_id).first
-        message += "#{product.name} #{product.category} 数量：#{relation.base_amount} 价格：#{relation.base_price}\n"
+        purchasing = user.purchasings.where(:product_id => product.id).first
+        available_amount = relation.base_amount - (purchasing.nil? ? 0 : purchasing.amount)
+        message += "#{product.name} #{product.category} 数量：#{available_amount} 价格：#{relation.base_price}\n"
       }
       message += "*********\n你所拥有的商品：\n"
 

@@ -4,5 +4,8 @@ class Product < ActiveRecord::Base
 
   has_many :user_product_relations
   has_many :users, :through => :user_product_relations
+
+  has_many :purchasings
+  has_many :users, :through => :purchasings
   attr_accessible :category, :name
 end
