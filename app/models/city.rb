@@ -1,4 +1,5 @@
 class City < ActiveRecord::Base
+  has_many :users
   has_many :city_product_relations
   has_many :products, :through => :city_product_relations
   attr_accessible :latitude, :longitude, :name

@@ -69,7 +69,7 @@ class Voyage
       if match[1].nil?
         message += "请选择你要去的城市\n"
         City.all.reject { |city|
-          city.name == user.position
+          city == user.city
         }.each { |city|
           message += "#{city.name}\n"
         }
@@ -80,8 +80,7 @@ class Voyage
     elsif content == '市场'
       message += "持有金钱：#{user.money}\n"
       message += "市场里的商品：\n"
-      city = City.where(:name => user.position).first
-      all_products = city.city_product_relations
+      all_products = user.city.city_product_relations
       all_products.all.reject { |relation|
         relation.base_amount == 0
       }.each { |relation|
@@ -94,7 +93,7 @@ class Voyage
 
       user.user_product_relations.each { |relation|
         product = Product.where(:id => relation.product_id).first
-        sell_price = city.sell_price product
+        sell_price = user.city.sell_price product
         message += "#{product.name} #{product.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
       }
       user.save_value :sys_stat, MARKET

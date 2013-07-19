@@ -1,6 +1,7 @@
 #encoding: utf-8
 class User < ActiveRecord::Base
   has_one :personal_action
+  belongs_to :city
   has_many :personal_skills
 
   has_many :user_product_relations
@@ -8,7 +9,7 @@ class User < ActiveRecord::Base
 
   has_many :purchasings
   has_many :products, :through => :purchasings
-  attr_accessible :user_wechat_id, :level, :name, :sys_stat, :position, :money
+  attr_accessible :user_wechat_id, :level, :name, :sys_stat, :money
 
   def save_value property, value
     method_name = (property.to_s + '=').to_sym
@@ -19,8 +20,8 @@ class User < ActiveRecord::Base
   def new_user name
     save_value :name, name
     save_value :level, 1
-    save_value :position, '成都'
     save_value :money, 500
+    save_value :city, City.where(:name => '成都').first
     clear_sys_stat
   end
 
@@ -54,26 +55,26 @@ class User < ActiveRecord::Base
   def get_stat
     "姓名：#{self.name}\n" +
         "等级：#{self.level.to_s}\n" +
-        "位置：#{self.position}\n" +
+        "位置：#{self.city.name}\n" +
         "金钱：#{self.money}"
   end
 
   def go_to city, start_time
     message = ''
-    if city == self.position
+    if city == self.city.name
       message += "你已经在#{city}"
       clear_sys_stat
     elsif City.where(:name => city).empty?
       message += '没有找到该城市'
       clear_sys_stat
     else
-      distance = City.where(:name => self.position).first.get_dist city
+      distance = self.city.get_dist city
       cost_time = (distance/100).to_i
-      message += "从#{self.position}到#{city}有#{distance}里\n"
+      message += "从#{self.city.name}到#{city}有#{distance}里\n"
       message += "需要用时#{cost_time}秒"
 
       action = self.personal_action
-      action.move_city self.position, city, start_time, cost_time
+      action.move_city self.city.name, city, start_time, cost_time
       save_value :sys_stat, '行动'
     end
     message
@@ -86,7 +87,7 @@ class User < ActiveRecord::Base
     if action.status == '移动'
       if start_time.to_i >= action.start_time.to_i + action.last_time.to_i
         message += "你已移动到#{action.to}\n"
-        save_value :position, action.to
+        save_value :city, City.where(:name => action.to).first
         completed = true
 
         self.purchasings.each { |purchasing| purchasing.delete }
@@ -103,7 +104,7 @@ class User < ActiveRecord::Base
   def buy_product product_name, amount
     message = ''
     product = Product.where(:name => product_name).first
-    product_in_city = City.where(:name => self.position).first.city_product_relations.where(:product_id => product.id).first
+    product_in_city = self.city.city_product_relations.where(:product_id => product.id).first
     money_cost = amount.to_i * product_in_city.base_price
     if product_in_city.base_amount == 0
       message += "市场上没有#{product_name}"
@@ -142,8 +143,7 @@ class User < ActiveRecord::Base
   def sell_product product_name, amount
     message = ''
     product = Product.where(:name => product_name).first
-    city = City.where(:name => self.position).first
-    money_earn = amount.to_i * city.sell_price(product)
+    money_earn = amount.to_i * self.city.sell_price(product)
 
     relation = self.user_product_relations.where(:product_id => product.id).first
     if amount.to_i > relation.amount
