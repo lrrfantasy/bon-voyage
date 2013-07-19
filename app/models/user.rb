@@ -104,8 +104,7 @@ class User < ActiveRecord::Base
     message = ''
     product = Product.where(:name => product_name).first
     product_in_city = City.where(:name => self.position).first.city_product_relations.where(:product_id => product.id).first
-    buy_price = product_in_city.base_price
-    money_cost = amount.to_i * buy_price
+    money_cost = amount.to_i * product_in_city.base_price
     if product_in_city.base_amount == 0
       message += "市场上没有#{product_name}"
     elsif amount.to_i > product_in_city.base_amount
@@ -113,22 +112,7 @@ class User < ActiveRecord::Base
     elsif self.money < money_cost
       message += "你的钱不够多"
     else
-      if self.user_product_relations.where(:product_id => product.id).first.present?
-        relation = self.user_product_relations.where(:product_id => product.id).first
-        relation.price = (relation.price * relation.amount + product_in_city.base_price * amount.to_i) / (amount.to_i + relation.amount)
-        relation.amount += amount.to_i
-        relation.save
-      else
-        self.user_product_relations.create(user_id: self.id, product_id: product.id, amount: amount, price: product_in_city.base_price)
-      end
-
-      if self.purchasings.where(:product_id => product.id).first.present?
-        purchasing = self.purchasings.where(:product_id => product.id).first
-        purchasing.amount += amount.to_i
-        purchasing.save
-      else
-        self.purchasings.create(user_id: self.id, product_id: product.id, amount: amount.to_i)
-      end
+      purchase product, amount, product_in_city.base_price
 
       self.money -= money_cost
       self.save
@@ -138,12 +122,28 @@ class User < ActiveRecord::Base
     message
   end
 
+  def purchase product, amount, buy_price
+    if (relation = self.user_product_relations.where(:product_id => product.id).first).present?
+      relation.price = (relation.price * relation.amount + buy_price * amount.to_i) / (amount.to_i + relation.amount)
+      relation.amount += amount.to_i
+      relation.save
+    else
+      self.user_product_relations.create(user_id: self.id, product_id: product.id, amount: amount, price: buy_price)
+    end
+
+    if (purchasing = self.purchasings.where(:product_id => product.id).first).present?
+      purchasing.amount += amount.to_i
+      purchasing.save
+    else
+      self.purchasings.create(user_id: self.id, product_id: product.id, amount: amount.to_i)
+    end
+  end
+
   def sell_product product_name, amount
     message = ''
     product = Product.where(:name => product_name).first
     city = City.where(:name => self.position).first
-    sell_price = city.sell_price product
-    money_earn = amount.to_i * sell_price
+    money_earn = amount.to_i * city.sell_price(product)
 
     relation = self.user_product_relations.where(:product_id => product.id).first
     if amount.to_i > relation.amount
