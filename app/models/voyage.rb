@@ -78,6 +78,7 @@ class Voyage
         message += user.go_to match[1].strip, start_time
       end
     elsif content == '市场'
+      message += "持有金钱：#{user.money}\n"
       message += "市场里的商品：\n"
       city = City.where(:name => user.position).first
       all_products = city.city_product_relations

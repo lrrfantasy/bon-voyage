@@ -134,12 +134,13 @@ class User < ActiveRecord::Base
     if amount.to_i > relation.amount
       message += "你没有足够的#{product_name}"
     else
+      profit = money_earn - relation.price * amount.to_i
       relation.amount -= amount.to_i
       relation.save
       relation.delete if relation.amount == 0
       self.money += money_earn
       self.save
-      message += "你售出了#{product_name}#{amount}个\n收入了金钱#{money_earn}"
+      message += "你售出了#{product_name}#{amount}个\n收入了金钱#{money_earn}\n利润#{profit}"
     end
     clear_sys_stat
     message
