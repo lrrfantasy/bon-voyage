@@ -8,14 +8,9 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 Skill.create(name: 'Accounting', max_level: 10, description: 'Bargaining')
-Product.create([
-                {name: '蜀锦', category: '纺织品'},
-                {name: '大米', category: '食品'},
-                {name: '马', category: '畜牲'}
-               ])
 
 %w{
-  city city_product
+  city product city_product
 }.each do |part|
   require File.expand_path(File.dirname(__FILE__))+"/seeds/#{part}.rb"
 end

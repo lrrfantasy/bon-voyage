@@ -1,0 +1,25 @@
+#encoding: utf-8
+Product.create([
+                   {name: '大米', category: '食品'},
+                   {name: '香肠', category: '食品'},
+                   {name: '马', category: '家畜'},
+                   {name: '猪', category: '家畜'},
+                   {name: '汾酒', category: '酒类'},
+                   {name: '葡萄酒', category: '酒类'},
+                   {name: '刺绣', category: '纺织品'},
+                   {name: '丝绸', category: '纺织品'},
+                   {name: '瓷器', category: '艺术品'},
+                   {name: '山水画', category: '艺术品'},
+                   {name: '弓', category: '武器'},
+                   {name: '长剑', category: '武器'},
+                   {name: '三七', category: '药材'},
+                   {name: '地黄', category: '药材'},
+                   {name: '牡丹', category: '花卉'},
+                   {name: '杜鹃', category: '花卉'},
+                   {name: '胡琴', category: '乐器'},
+                   {name: '二胡', category: '乐器'},
+                   {name: '荔枝', category: '水果'},
+                   {name: '葡萄', category: '水果'},
+                   {name: '纸', category: '杂货'},
+                   {name: '胭脂', category: '杂货'}
+               ])
