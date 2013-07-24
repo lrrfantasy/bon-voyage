@@ -28,6 +28,8 @@ class Voyage
         message += user.buy_product match[1], match[2]
       elsif !(match = (content.match /^卖 (.+) (.+)/)).nil?
         message += user.sell_product match[1], match[2]
+      elsif !(match = (content.match  /^全部卖出$/)).nil?
+        message += user.sell_all
       elsif content == '返回'
         user.clear_sys_stat
       end

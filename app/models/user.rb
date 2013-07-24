@@ -162,6 +162,22 @@ class User < ActiveRecord::Base
     message
   end
 
+  def sell_all
+    message = ''
+    money_earn = 0
+    profit = 0
+    self.user_product_relations.each { |relation|
+      money_earn += relation.amount * self.city.sell_price(relation.product)
+      profit += relation.amount * (self.city.sell_price(relation.product) - relation.price)
+      relation.delete
+    }
+    self.money += money_earn
+    self.save
+    message += "你售出了全部货物\n收入了金钱#{money_earn}\n利润#{profit}"
+    clear_sys_stat
+    message
+  end
+
   def product_available_amount(product, city_product_relation)
     purchasing = self.purchasings.where(:product_id => product.id).first
     city_product_relation.base_amount - (purchasing.nil? ? 0 : purchasing.amount)
