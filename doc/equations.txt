@@ -1,0 +1,3 @@
+Product buy/sell price:
+  Buy: (95% ~ 105%)a
+  Sell: (115% ~ 125%)a

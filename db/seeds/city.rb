@@ -2,7 +2,7 @@
 City.create([
                 {name: '成都', latitude: 30.661079, longitude: 104.063283},
                 {name: '长安', latitude: 34.309413, longitude: 108.949270},
-                {name: '泉州', latitude: 26.051540, longitude: 119.304829},
+                {name: '泉州', latitude: 24.874699, longitude: 118.675464},
                 {name: '扬州', latitude: 32.394210, longitude: 119.412966},
                 {name: '苏州', latitude: 31.298886, longitude: 120.585316},
                 {name: '太原', latitude: 37.870590, longitude: 112.548879},
@@ -14,7 +14,6 @@ City.create([
                 {name: '灵武', latitude: 38.102655, longitude: 106.340054},
                 {name: '雁门', latitude: 39.066917, longitude: 112.960282},
                 {name: '江陵', latitude: 30.402110, longitude: 112.900079},
-                {name: '夷陵', latitude: 30.691967, longitude: 111.286471},
                 {name: '襄阳', latitude: 32.008986, longitude: 112.122415},
                 {name: '天水', latitude: 34.580864, longitude: 105.724947},
                 {name: '敦煌', latitude: 40.142130, longitude: 94.661881},
