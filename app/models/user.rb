@@ -75,7 +75,7 @@ class User < ActiveRecord::Base
 
       action = self.personal_action
       action.move_city self.city.name, city, start_time, cost_time
-      save_value :sys_stat, '行动'
+      save_value :sys_stat, SysStat.action
     end
     message
   end
@@ -181,7 +181,7 @@ class User < ActiveRecord::Base
       sell_price = self.city.sell_price product
       message += "#{product.name} #{product.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
     }
-    save_value :sys_stat, '市场'
+    save_value :sys_stat, SysStat.market
     message
   end
 

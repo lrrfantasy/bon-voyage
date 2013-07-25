@@ -2,28 +2,24 @@
 require 'xmlsimple'
 
 class Voyage
-  REGISTER = '注册'
-  LEARN_SKILL = '学习技能'
-  GO_OUT = '出城'
-  MARKET = '市场'
 
   def self.get_content(user_wechat_id, content, start_time)
     message = ''
     user = safe_find_user(user_wechat_id)
 
-    if user.name.nil? && !user.at?(REGISTER)
+    if user.name.nil? && !user.at?(SysStat.register)
       message += '你是新来的？取个名字吧。'
-      user.save_value :sys_stat, REGISTER
+      user.save_value :sys_stat, SysStat.register
       return message
     end
 
-    if user.at? REGISTER
+    if user.at? SysStat.register
       user.new_user content
-    elsif user.at? LEARN_SKILL
+    elsif user.at? SysStat.learn_skill
       message += user.learn_skill content
-    elsif user.at? GO_OUT
+    elsif user.at? SysStat.go_out
       message += user.go_to content, start_time
-    elsif user.at? MARKET
+    elsif user.at? SysStat.market
       if (match = (content.match /^买 (.+) (.+)/)).present?
         message += user.buy_product match[1], match[2]
       elsif !(match = (content.match /^卖 (.+) (.+)/)).nil?
@@ -33,7 +29,7 @@ class Voyage
       elsif content == '返回'
         user.clear_sys_stat
       end
-    elsif user.at? '行动'
+    elsif user.at? SysStat.action
       #TODO GM function
       if content == '秒到'
         user.personal_action.last_time = '0'
@@ -58,7 +54,7 @@ class Voyage
         Skill.all.each { |skill|
           message += "#{skill.name}\n"
         }
-        user.save_value :sys_stat, LEARN_SKILL
+        user.save_value :sys_stat, SysStat.learn_skill
       else
         message += user.learn_skill match[1].strip
       end
@@ -75,7 +71,7 @@ class Voyage
         }.each { |city|
           message += "#{city.name}\n"
         }
-        user.save_value :sys_stat, GO_OUT
+        user.save_value :sys_stat, SysStat.go_out
       else
         message += user.go_to match[1].strip, start_time
       end
@@ -94,6 +90,7 @@ class Voyage
     if user.nil?
       user = User.create(user_wechat_id: user_wechat_id, sys_stat: '')
       user.build_personal_action
+      user.save
     end
     user
   end
