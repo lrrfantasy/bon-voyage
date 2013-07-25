@@ -69,7 +69,7 @@ class User < ActiveRecord::Base
       clear_sys_stat
     else
       distance = self.city.get_dist city
-      cost_time = (distance/100).to_i
+      cost_time = (distance/10).to_i
       message += "从#{self.city.name}到#{city}有#{distance}里\n"
       message += "需要用时#{cost_time}秒"
 
