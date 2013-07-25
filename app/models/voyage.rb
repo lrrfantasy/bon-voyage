@@ -28,7 +28,7 @@ class Voyage
         message += user.buy_product match[1], match[2]
       elsif !(match = (content.match /^卖 (.+) (.+)/)).nil?
         message += user.sell_product match[1], match[2]
-      elsif !(match = (content.match  /^全部卖出$/)).nil?
+      elsif content == '全部卖出'
         message += user.sell_all
       elsif content == '返回'
         user.clear_sys_stat
@@ -80,24 +80,7 @@ class Voyage
         message += user.go_to match[1].strip, start_time
       end
     elsif content == '市场'
-      message += "持有金钱：#{user.money}\n"
-      message += "市场里的商品：\n"
-      all_products = user.city.city_product_relations
-      all_products.all.reject { |relation|
-        relation.base_amount == 0
-      }.each { |relation|
-        product = Product.where(:id => relation.product_id).first
-        available_amount = user.product_available_amount product, relation
-        message += "#{product.name} #{product.category} 数量：#{available_amount} 价格：#{relation.base_price}\n"
-      }
-      message += "*********\n你所拥有的商品：\n"
-
-      user.user_product_relations.each { |relation|
-        product = Product.where(:id => relation.product_id).first
-        sell_price = user.city.sell_price product
-        message += "#{product.name} #{product.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
-      }
-      user.save_value :sys_stat, MARKET
+      message += user.market_info
     end
 
     if message == ''

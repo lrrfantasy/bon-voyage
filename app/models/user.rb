@@ -89,9 +89,7 @@ class User < ActiveRecord::Base
         message += "你已移动到#{action.to}\n"
         save_value :city, City.where(:name => action.to).first
         completed = true
-
         self.purchasings.each { |purchasing| purchasing.delete }
-
         clear_sys_stat
       else
         remaining_time = action.start_time.to_i + action.last_time.to_i - start_time.to_i
@@ -115,30 +113,12 @@ class User < ActiveRecord::Base
       message += "你的钱不够多"
     else
       purchase product, amount, product_in_city.base_price
-
       self.money -= money_cost
       self.save
-      message += "你买入了#{product_name}#{amount}个\n支出了金钱#{money_cost}"
+      message += "你买入了#{product_name}#{amount}个\n支出了金钱#{money_cost}\n"
     end
-    clear_sys_stat
+    message += "*********\n#{market_info}"
     message
-  end
-
-  def purchase(product, amount, buy_price)
-    if (relation = self.user_product_relations.where(:product_id => product.id).first).present?
-      relation.price = (relation.price * relation.amount + buy_price * amount.to_i) / (amount.to_i + relation.amount)
-      relation.amount += amount.to_i
-      relation.save
-    else
-      self.user_product_relations.create(user_id: self.id, product_id: product.id, amount: amount, price: buy_price)
-    end
-
-    if (purchasing = self.purchasings.where(:product_id => product.id).first).present?
-      purchasing.amount += amount.to_i
-      purchasing.save
-    else
-      self.purchasings.create(user_id: self.id, product_id: product.id, amount: amount.to_i)
-    end
   end
 
   def sell_product(product_name, amount)
@@ -156,9 +136,9 @@ class User < ActiveRecord::Base
       relation.delete if relation.amount == 0
       self.money += money_earn
       self.save
-      message += "你售出了#{product_name}#{amount}个\n收入了金钱#{money_earn}\n利润#{profit}"
+      message += "你售出了#{product_name}#{amount}个\n收入了金钱#{money_earn}\n利润#{profit}\n"
     end
-    clear_sys_stat
+    message += "*********\n#{market_info}"
     message
   end
 
@@ -181,5 +161,46 @@ class User < ActiveRecord::Base
   def product_available_amount(product, city_product_relation)
     purchasing = self.purchasings.where(:product_id => product.id).first
     city_product_relation.base_amount - (purchasing.nil? ? 0 : purchasing.amount)
+  end
+
+  def market_info
+    message = "持有金钱：#{self.money}\n"
+    message += "市场里的商品：\n"
+    all_products = self.city.city_product_relations
+    all_products.all.reject { |relation|
+      relation.base_amount == 0
+    }.each { |relation|
+      product = Product.where(:id => relation.product_id).first
+      available_amount = self.product_available_amount product, relation
+      message += "#{product.name} #{product.category} 数量：#{available_amount} 价格：#{relation.base_price}\n"
+    }
+    message += "*********\n你所拥有的商品：\n"
+
+    self.user_product_relations.each { |relation|
+      product = Product.where(:id => relation.product_id).first
+      sell_price = self.city.sell_price product
+      message += "#{product.name} #{product.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
+    }
+    save_value :sys_stat, '市场'
+    message
+  end
+
+  private
+
+  def purchase(product, amount, buy_price)
+    if (relation = self.user_product_relations.where(:product_id => product.id).first).present?
+      relation.price = (relation.price * relation.amount + buy_price * amount.to_i) / (amount.to_i + relation.amount)
+      relation.amount += amount.to_i
+      relation.save
+    else
+      self.user_product_relations.create(user_id: self.id, product_id: product.id, amount: amount, price: buy_price)
+    end
+
+    if (purchasing = self.purchasings.where(:product_id => product.id).first).present?
+      purchasing.amount += amount.to_i
+      purchasing.save
+    else
+      self.purchasings.create(user_id: self.id, product_id: product.id, amount: amount.to_i)
+    end
   end
 end
