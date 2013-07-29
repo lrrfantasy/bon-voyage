@@ -114,11 +114,11 @@ class User < ActiveRecord::Base
     money_cost = amount.to_i * buy_price
     available_amount = product_available_amount product, product_in_city
     if product_in_city.base_amount == 0
-      message += "市场上没有#{product_name}"
+      message += "市场上没有#{product_name}\n"
     elsif amount.to_i > available_amount
-      message += "市场上#{product_name}不够多"
+      message += "市场上没有足够的#{product_name}\n"
     elsif self.money < money_cost
-      message += "你的钱不够多"
+      message += "你的钱不够多\n"
     else
       purchase product, amount, buy_price
       self.money -= money_cost
@@ -136,7 +136,7 @@ class User < ActiveRecord::Base
 
     relation = self.user_product_relations.where(:product_id => product.id).first
     if amount.to_i > relation.amount
-      message += "你没有足够的#{product_name}"
+      message += "你没有足够的#{product_name}\n"
     else
       profit = money_earn - relation.price * amount.to_i
       relation.amount -= amount.to_i
@@ -145,7 +145,7 @@ class User < ActiveRecord::Base
       self.money += money_earn
       self.save
       message += "你售出了#{product_name}#{amount}个\n收入了金钱#{money_earn}\n利润#{profit}\n"
-      message += self.exp_skill("会计", (profit / 100).to_i)
+      message += self.exp_skill("会计", (profit / 100).to_i) if profit > 0
     end
     message += "*********\n#{market_info}"
     message
@@ -163,7 +163,7 @@ class User < ActiveRecord::Base
     self.money += money_earn
     self.save
     message += "你售出了全部货物\n收入了金钱#{money_earn}\n利润#{profit}\n"
-    message += self.exp_skill("会计", (profit / 100).to_i)
+    message += self.exp_skill("会计", (profit / 100).to_i) if profit > 0
     message += "*********\n#{market_info}"
     message
   end
@@ -187,7 +187,7 @@ class User < ActiveRecord::Base
     }
     message += "*********\n你所拥有的商品：\n"
 
-    self.user_product_relations.each { |relation|
+    self.user_product_relations.all.each { |relation|
       product = Product.where(:id => relation.product_id).first
       sell_price = self.accounted_sell_price product
       message += "#{product.name} #{product.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
