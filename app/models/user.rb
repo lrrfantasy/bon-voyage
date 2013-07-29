@@ -132,7 +132,7 @@ class User < ActiveRecord::Base
   def sell_product(product_name, amount)
     message = ''
     product = Product.where(:name => product_name).first
-    money_earn = amount.to_i * self.city.sell_price(self, product)
+    money_earn = amount.to_i * self.accounted_sell_price(product)
 
     relation = self.user_product_relations.where(:product_id => product.id).first
     if amount.to_i > relation.amount
@@ -155,14 +155,14 @@ class User < ActiveRecord::Base
     money_earn = 0
     profit = 0
     self.user_product_relations.each { |relation|
-      money_earn += relation.amount * self.city.sell_price(self, relation.product)
-      profit += relation.amount * (self.city.sell_price(self, relation.product) - relation.price)
+      money_earn += relation.amount * self.accounted_sell_price(relation.product)
+      profit += relation.amount * (self.accounted_sell_price(relation.product) - relation.price)
       relation.delete
     }
     self.money += money_earn
     self.save
-    message += "你售出了全部货物\n收入了金钱#{money_earn}\n利润#{profit}"
-    clear_sys_stat
+    message += "你售出了全部货物\n收入了金钱#{money_earn}\n利润#{profit}\n"
+    message += "*********\n#{market_info}"
     message
   end
 
@@ -187,16 +187,11 @@ class User < ActiveRecord::Base
 
     self.user_product_relations.each { |relation|
       product = Product.where(:id => relation.product_id).first
-      sell_price = self.city.sell_price(self, product)
+      sell_price = self.accounted_sell_price product
       message += "#{product.name} #{product.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
     }
     save_value :sys_stat, SysStat.market
     message
-  end
-
-  def accounted_sell_price base_price
-    accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
-    (base_price * (1 + 0.01 * accounting_level)).to_i
   end
 
   private
@@ -221,5 +216,13 @@ class User < ActiveRecord::Base
   def accounted_buy_price base_price
     accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
     (base_price * (1 - 0.01 * accounting_level)).to_i
+  end
+
+  def accounted_sell_price product
+    product_in_city = self.city.city_product_relations.where(:product_id => product.id).first
+    price = product_in_city.base_price
+    price = (price / 2).to_i if (product_in_city.base_amount > 0)
+    accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
+    (price * (1 + 0.01 * accounting_level)).to_i
   end
 end

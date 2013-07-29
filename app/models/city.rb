@@ -8,11 +8,4 @@ class City < ActiveRecord::Base
     dest_city = City.where(:name => city).first
     (Math.sqrt((self.latitude - dest_city.latitude)**2 + (self.longitude - dest_city.longitude)**2) * 200).to_i
   end
-
-  def sell_price(user, product)
-    product_in_city = self.city_product_relations.where(:product_id => product.id).first
-    price = user.accounted_sell_price product_in_city.base_price
-    price = (price / 2).to_i if (product_in_city.base_amount > 0)
-    price
-  end
 end
