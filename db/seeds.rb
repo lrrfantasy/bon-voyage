@@ -7,7 +7,7 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-Skill.create(name: 'Accounting', max_level: 10, description: 'Bargaining')
+Skill.create(name: '会计', max_level: 10, description: '以更低价格买入，以更高价格卖出')
 
 %w{
   city product city_product

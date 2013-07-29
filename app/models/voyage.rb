@@ -17,6 +17,8 @@ class Voyage
       user.new_user content
     elsif user.at? SysStat.learn_skill
       message += user.learn_skill content
+    elsif user.at? SysStat.intro_skill
+      message += user.intro_skill content
     elsif user.at? SysStat.go_out
       message += user.go_to content, start_time
     elsif user.at? SysStat.market
@@ -44,8 +46,7 @@ class Voyage
       message += user.get_stat
     elsif content == '技能'
       message += "拥有的技能：\n"
-      personal_skills = user.get_skills
-      personal_skills.each { |skill|
+      user.personal_skills.each { |skill|
         message += "#{skill.name}：Lv.#{skill.level} Exp:#{skill.exp}/#{skill.level**2*100}\n"
       }
     elsif !(match = (content.match /^学习技能( .+)?$/)).nil?
@@ -54,7 +55,7 @@ class Voyage
         Skill.all.each { |skill|
           message += "#{skill.name}\n"
         }
-        user.save_value :sys_stat, SysStat.learn_skill
+        user.save_value :sys_stat, SysStat.intro_skill
       else
         message += user.learn_skill match[1].strip
       end
