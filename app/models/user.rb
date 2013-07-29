@@ -145,6 +145,7 @@ class User < ActiveRecord::Base
       self.money += money_earn
       self.save
       message += "你售出了#{product_name}#{amount}个\n收入了金钱#{money_earn}\n利润#{profit}\n"
+      message += self.exp_skill("会计", (profit / 100).to_i)
     end
     message += "*********\n#{market_info}"
     message
@@ -162,6 +163,7 @@ class User < ActiveRecord::Base
     self.money += money_earn
     self.save
     message += "你售出了全部货物\n收入了金钱#{money_earn}\n利润#{profit}\n"
+    message += self.exp_skill("会计", (profit / 100).to_i)
     message += "*********\n#{market_info}"
     message
   end
