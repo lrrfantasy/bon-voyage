@@ -56,7 +56,7 @@ class User < ActiveRecord::Base
 
   def exp_skill(skill_name, exp)
     skill = self.personal_skills.where(:name => skill_name).first
-    skill.receive_exp exp
+    skill.nil? ? '' : skill.receive_exp(exp)
   end
 
   def get_stat
@@ -124,6 +124,7 @@ class User < ActiveRecord::Base
       self.money -= money_cost
       self.save
       message += "你买入了#{product_name}#{amount}个\n支出了金钱#{money_cost}\n"
+      message += exp_skill("#{product.category}买卖", Equation.trading_exp(money_cost))
     end
     message += "*********\n#{market_info}"
     message
@@ -170,7 +171,10 @@ class User < ActiveRecord::Base
 
   def product_available_amount(product, city_product_relation)
     purchasing = self.purchasings.where(:product_id => product.id).first
-    city_product_relation.base_amount - (purchasing.nil? ? 0 : purchasing.amount)
+    trade_skill = self.personal_skills.where(:name => "#{product.category}买卖").first
+    skill_level = trade_skill.nil? ? 0 : trade_skill.level
+    increased_amount = skill_level * Equation.trading_amount_per_level(city_product_relation.base_price)
+    city_product_relation.base_amount + increased_amount - (purchasing.nil? ? 0 : purchasing.amount)
   end
 
   def market_info
