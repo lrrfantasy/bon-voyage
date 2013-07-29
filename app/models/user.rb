@@ -76,7 +76,7 @@ class User < ActiveRecord::Base
       clear_sys_stat
     else
       distance = self.city.get_dist city
-      cost_time = (distance/50).to_i
+      cost_time = Equation.moving_time distance
       message += "从#{self.city.name}到#{city}有#{distance}里\n"
       message += "需要用时#{cost_time}秒"
 
@@ -145,7 +145,7 @@ class User < ActiveRecord::Base
       self.money += money_earn
       self.save
       message += "你售出了#{product_name}#{amount}个\n收入了金钱#{money_earn}\n利润#{profit}\n"
-      message += self.exp_skill("会计", (profit / 100).to_i) if profit > 0
+      message += self.exp_skill("会计", Equation.accounting_exp(profit)) if profit > 0
     end
     message += "*********\n#{market_info}"
     message
@@ -201,7 +201,7 @@ class User < ActiveRecord::Base
     price = product_in_city.base_price
     price = (price / 2).to_i if (product_in_city.base_amount > 0)
     accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
-    (price * (1 + 0.01 * accounting_level)).to_i
+    Equation.accounting_sell(price, accounting_level)
   end
 
   private
@@ -225,6 +225,6 @@ class User < ActiveRecord::Base
 
   def accounted_buy_price base_price
     accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
-    (base_price * (1 - 0.01 * accounting_level)).to_i
+    Equation.accounting_buy(base_price, accounting_level)
   end
 end
