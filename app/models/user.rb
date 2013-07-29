@@ -110,7 +110,8 @@ class User < ActiveRecord::Base
     message = ''
     product = Product.where(:name => product_name).first
     product_in_city = self.city.city_product_relations.where(:product_id => product.id).first
-    money_cost = amount.to_i * product_in_city.base_price
+    buy_price = accounted_buy_price product_in_city.base_price
+    money_cost = amount.to_i * buy_price
     available_amount = product_available_amount product, product_in_city
     if product_in_city.base_amount == 0
       message += "市场上没有#{product_name}"
@@ -119,7 +120,7 @@ class User < ActiveRecord::Base
     elsif self.money < money_cost
       message += "你的钱不够多"
     else
-      purchase product, amount, product_in_city.base_price
+      purchase product, amount, buy_price
       self.money -= money_cost
       self.save
       message += "你买入了#{product_name}#{amount}个\n支出了金钱#{money_cost}\n"
@@ -179,7 +180,8 @@ class User < ActiveRecord::Base
     }.each { |relation|
       product = Product.where(:id => relation.product_id).first
       available_amount = self.product_available_amount product, relation
-      message += "#{product.name} #{product.category} 数量：#{available_amount} 价格：#{relation.base_price}\n"
+      buy_price = accounted_buy_price relation.base_price
+      message += "#{product.name} #{product.category} 数量：#{available_amount} 价格：#{buy_price}\n"
     }
     message += "*********\n你所拥有的商品：\n"
 
@@ -209,5 +211,10 @@ class User < ActiveRecord::Base
     else
       self.purchasings.create(user_id: self.id, product_id: product.id, amount: amount.to_i)
     end
+  end
+
+  def accounted_buy_price base_price
+    accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
+    (base_price * (1 - 0.01 * accounting_level)).to_i
   end
 end
