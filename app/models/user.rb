@@ -194,6 +194,14 @@ class User < ActiveRecord::Base
     message
   end
 
+  def accounted_sell_price product
+    product_in_city = self.city.city_product_relations.where(:product_id => product.id).first
+    price = product_in_city.base_price
+    price = (price / 2).to_i if (product_in_city.base_amount > 0)
+    accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
+    (price * (1 + 0.01 * accounting_level)).to_i
+  end
+
   private
 
   def purchase(product, amount, buy_price)
@@ -216,13 +224,5 @@ class User < ActiveRecord::Base
   def accounted_buy_price base_price
     accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
     (base_price * (1 - 0.01 * accounting_level)).to_i
-  end
-
-  def accounted_sell_price product
-    product_in_city = self.city.city_product_relations.where(:product_id => product.id).first
-    price = product_in_city.base_price
-    price = (price / 2).to_i if (product_in_city.base_amount > 0)
-    accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
-    (price * (1 + 0.01 * accounting_level)).to_i
   end
 end
