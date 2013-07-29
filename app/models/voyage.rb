@@ -32,8 +32,7 @@ class Voyage
         user.clear_sys_stat
       end
     elsif user.at? SysStat.action
-      #TODO GM function
-      if content == '秒到'
+      if content == '秒到' and user.is_gm?
         user.personal_action.last_time = '0'
         user.personal_action.save
       end
@@ -59,8 +58,7 @@ class Voyage
       else
         message += user.learn_skill match[1].strip
       end
-      #TODO this is a GM function
-    elsif (match = (content.match /^技能经验 (.+) (.+)/)).present?
+    elsif (match = (content.match /^技能经验 (.+) (.+)/)).present? and user.is_gm?
       skill_name = match[1]
       exp = match[2]
       message += user.exp_skill skill_name, exp

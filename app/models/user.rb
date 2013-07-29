@@ -204,6 +204,10 @@ class User < ActiveRecord::Base
     Equation.accounting_sell(price, accounting_level)
   end
 
+  def is_gm?
+    self.user_wechat_id == "client"
+  end
+
   private
 
   def purchase(product, amount, buy_price)
