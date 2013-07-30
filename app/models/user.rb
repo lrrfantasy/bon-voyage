@@ -126,7 +126,7 @@ class User < ActiveRecord::Base
       message += "你买入了#{product_name}#{amount}个\n支出了金钱#{money_cost}\n"
       message += exp_skill("#{product.category}买卖", Equation.trading_exp(money_cost))
     end
-    message += "*********\n#{market_info}"
+    message += "*********\n#{buy_market_info}"
     message
   end
 
@@ -148,7 +148,7 @@ class User < ActiveRecord::Base
       message += "你售出了#{product_name}#{amount}个\n收入了金钱#{money_earn}\n利润#{profit}\n"
       message += self.exp_skill("会计", Equation.accounting_exp(profit)) if profit > 0
     end
-    message += "*********\n#{market_info}"
+    message += "*********\n#{sell_market_info}"
     message
   end
 
@@ -165,7 +165,6 @@ class User < ActiveRecord::Base
     self.save
     message += "你售出了全部货物\n收入了金钱#{money_earn}\n利润#{profit}\n"
     message += self.exp_skill("会计", (profit / 100).to_i) if profit > 0
-    message += "*********\n#{market_info}"
     message
   end
 
@@ -177,7 +176,7 @@ class User < ActiveRecord::Base
     city_product_relation.base_amount + increased_amount - (purchasing.nil? ? 0 : purchasing.amount)
   end
 
-  def market_info
+  def buy_market_info
     message = "持有金钱：#{self.money}\n"
     message += "市场里的商品：\n"
     all_products = self.city.city_product_relations
@@ -189,14 +188,19 @@ class User < ActiveRecord::Base
       buy_price = accounted_buy_price relation.base_price
       message += "#{product.name} #{product.category} 数量：#{available_amount} 价格：#{buy_price}\n"
     }
-    message += "*********\n你所拥有的商品：\n"
+    save_value :sys_stat, SysStat.buy
+    message
+  end
+
+  def sell_market_info
+    message = "你所拥有的商品：\n"
 
     self.user_product_relations.all.each { |relation|
       product = Product.where(:id => relation.product_id).first
       sell_price = self.accounted_sell_price product
       message += "#{product.name} #{product.category} 数量：#{relation.amount} 买入价：#{relation.price} 卖出价：#{sell_price}\n"
     }
-    save_value :sys_stat, SysStat.market
+    save_value :sys_stat, SysStat.sell
     message
   end
 

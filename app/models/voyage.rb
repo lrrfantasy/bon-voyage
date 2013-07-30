@@ -21,13 +21,17 @@ class Voyage
       message += user.intro_skill content
     elsif user.at? SysStat.go_out
       message += user.go_to content, start_time
-    elsif user.at? SysStat.market
-      if (match = (content.match /^买 (.+) (.+)/)).present?
+    elsif user.at? SysStat.buy
+      if (match = (content.match /(.+) (.+)/)).present?
         message += user.buy_product match[1], match[2]
-      elsif !(match = (content.match /^卖 (.+) (.+)/)).nil?
-        message += user.sell_product match[1], match[2]
-      elsif content == '全部卖出'
+      elsif content == '返回'
+        user.clear_sys_stat
+      end
+    elsif user.at? SysStat.sell
+      if content == '全部卖出'
         message += user.sell_all
+      elsif (match = (content.match /(.+) (.+)/)).present?
+        message += user.sell_product match[1], match[2]
       elsif content == '返回'
         user.clear_sys_stat
       end
@@ -74,8 +78,10 @@ class Voyage
       else
         message += user.go_to match[1].strip, start_time
       end
-    elsif content == '市场'
-      message += user.market_info
+    elsif content == '买'
+      message += user.buy_market_info
+    elsif content == '卖'
+      message += user.sell_market_info
     end
 
     if message == ''

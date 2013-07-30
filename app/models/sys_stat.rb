@@ -4,7 +4,8 @@ class SysStat
   LEARN_SKILL = '学习技能'
   INTRO_SKILL = '介绍技能'
   GO_OUT = '出城'
-  MARKET = '市场'
+  BUY = '买'
+  SELL = '卖'
   ACTION = '行动'
 
   def self.register
@@ -23,8 +24,12 @@ class SysStat
     GO_OUT
   end
 
-  def self.market
-    MARKET
+  def self.buy
+    BUY
+  end
+
+  def self.sell
+    SELL
   end
 
   def self.action
