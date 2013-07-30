@@ -78,6 +78,8 @@ class Voyage
       else
         message += user.go_to match[1].strip, start_time
       end
+    elsif content == '增加装载'
+      message += user.add_load
     elsif content == '买'
       message += user.buy_market_info
     elsif content == '卖'

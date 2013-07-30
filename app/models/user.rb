@@ -227,7 +227,21 @@ class User < ActiveRecord::Base
   end
 
   def is_gm?
-    self.user_wechat_id == "client"
+    self.user_wechat_id == 'client'
+  end
+
+  def add_load
+    money_cost = self.load**2
+    message = ''
+    if self.money < money_cost
+      message += '你的钱不够'
+    else
+      self.money -= money_cost
+      self.load += 100
+      self.save
+      message += "花费#{money_cost}，装载增加了100"
+    end
+    message
   end
 
   private
