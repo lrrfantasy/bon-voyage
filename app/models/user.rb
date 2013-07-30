@@ -186,7 +186,9 @@ class User < ActiveRecord::Base
       product = Product.where(:id => relation.product_id).first
       available_amount = self.product_available_amount product, relation
       buy_price = accounted_buy_price relation.base_price
-      message += "#{product.name} #{product.category} 数量：#{available_amount} 价格：#{buy_price}\n"
+      buyable_amount = (self.money / buy_price).to_i
+      buyable_amount = available_amount if buyable_amount > available_amount
+      message += "#{product.name} #{product.category} 数量：#{available_amount} 价格：#{buy_price} 可买：#{buyable_amount}\n"
     }
     save_value :sys_stat, SysStat.buy
     message
