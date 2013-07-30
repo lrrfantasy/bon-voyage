@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
 
   has_many :purchasings
   has_many :products, :through => :purchasings
-  attr_accessible :user_wechat_id, :level, :name, :sys_stat, :money
+  attr_accessible :user_wechat_id, :level, :name, :sys_stat, :money, :load
 
   def save_value(property, value)
     method_name = (property.to_s + '=').to_sym
@@ -21,6 +21,7 @@ class User < ActiveRecord::Base
     save_value :name, name
     save_value :level, 1
     save_value :money, 5000
+    save_value :load, 100
     save_value :city, City.where(:name => '成都').first
     clear_sys_stat
   end
@@ -63,7 +64,8 @@ class User < ActiveRecord::Base
     "姓名：#{self.name}\n" +
         "等级：#{self.level.to_s}\n" +
         "位置：#{self.city.name}\n" +
-        "金钱：#{self.money}"
+        "金钱：#{self.money}\n" +
+        "装载：#{current_load}/#{self.load}"
   end
 
   def go_to(city, start_time)
@@ -115,12 +117,15 @@ class User < ActiveRecord::Base
     buy_price = accounted_buy_price product_in_city.base_price
     money_cost = amount.to_i * buy_price
     available_amount = product_available_amount product, product_in_city
+    current_load = current_load()
     if product_in_city.base_amount == 0
       message += "市场上没有#{product_name}\n"
     elsif amount.to_i > available_amount
       message += "市场上没有足够的#{product_name}\n"
     elsif self.money < money_cost
       message += "你的钱不够多\n"
+    elsif amount.to_i > (self.load - current_load)
+      message += "你的货仓不够\n"
     else
       purchase product, amount, buy_price
       self.money -= money_cost
@@ -180,7 +185,10 @@ class User < ActiveRecord::Base
   end
 
   def buy_market_info
+    current_load = current_load()
+
     message = "持有金钱：#{self.money}\n"
+    message += "装载：#{current_load}/#{self.load}"
     message += "市场里的商品：\n"
     all_products = self.city.city_product_relations
     all_products.all.reject { |relation|
@@ -191,6 +199,7 @@ class User < ActiveRecord::Base
       buy_price = accounted_buy_price relation.base_price
       buyable_amount = (self.money / buy_price).to_i
       buyable_amount = available_amount if buyable_amount > available_amount
+      buyable_amount = self.load - current_load if buyable_amount > (self.load - current_load)
       message += "#{product.name} #{product.category} 数量：#{available_amount} 价格：#{buy_price} 可买：#{buyable_amount}\n"
     }
     save_value :sys_stat, SysStat.buy
@@ -243,5 +252,13 @@ class User < ActiveRecord::Base
   def accounted_buy_price base_price
     accounting_level = self.personal_skills.where(:name => '会计').empty? ? 0 : self.personal_skills.where(:name => '会计').first.level
     Equation.accounting_buy(base_price, accounting_level)
+  end
+
+  def current_load
+    current_load = 0
+    self.user_product_relations.all.each { |relation|
+      current_load += relation.amount
+    }
+    current_load
   end
 end

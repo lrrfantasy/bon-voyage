@@ -89,6 +89,7 @@ ActiveRecord::Schema.define(:version => 20130719084104) do
     t.string   "sys_stat"
     t.integer  "money"
     t.integer  "city_id"
+    t.integer  "load"
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false
   end

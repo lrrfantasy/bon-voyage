@@ -7,6 +7,7 @@ class CreateUsers < ActiveRecord::Migration
       t.string :sys_stat
       t.integer :money
       t.integer :city_id
+      t.integer :load
 
       t.timestamps
     end
