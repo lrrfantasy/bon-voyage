@@ -8,7 +8,7 @@ class PersonalAction < ActiveRecord::Base
     self.from = from
     self.to = to
     self.start_time = start_time
-    self.last_time = last_time.to_s
+    self.last_time = last_time
     self.save
   end
 end

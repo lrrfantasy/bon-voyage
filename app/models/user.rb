@@ -89,19 +89,19 @@ class User < ActiveRecord::Base
     message
   end
 
-  def check_action(start_time)
+  def check_action(current_time)
     message = ''
     completed = false
     action = self.personal_action
     if action.status == '移动'
-      if start_time.to_i >= action.start_time.to_i + action.last_time.to_i
+      if current_time.to_i >= action.start_time.to_i + action.last_time
         message += "你已移动到#{action.to}\n"
         save_value :city, City.where(:name => action.to).first
         completed = true
         self.purchasings.each { |purchasing| purchasing.delete }
         clear_sys_stat
       else
-        remaining_time = action.start_time.to_i + action.last_time.to_i - start_time.to_i
+        remaining_time = action.start_time.to_i + action.last_time - current_time.to_i
         message += "你正在从#{action.from}到#{action.to}的路上，还要#{remaining_time}秒到达"
       end
     end
