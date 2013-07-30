@@ -109,6 +109,8 @@ class User < ActiveRecord::Base
   def buy_product(product_name, amount)
     message = ''
     product = Product.where(:name => product_name).first
+    return '' if product.nil?
+
     product_in_city = self.city.city_product_relations.where(:product_id => product.id).first
     buy_price = accounted_buy_price product_in_city.base_price
     money_cost = amount.to_i * buy_price
@@ -133,6 +135,7 @@ class User < ActiveRecord::Base
   def sell_product(product_name, amount)
     message = ''
     product = Product.where(:name => product_name).first
+    return '' if product.nil?
     money_earn = amount.to_i * self.accounted_sell_price(product)
 
     relation = self.user_product_relations.where(:product_id => product.id).first
