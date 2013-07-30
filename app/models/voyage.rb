@@ -62,10 +62,6 @@ class Voyage
       else
         message += user.learn_skill match[1].strip
       end
-    elsif (match = (content.match /^技能经验 (.+) (.+)/)).present? and user.is_gm?
-      skill_name = match[1]
-      exp = match[2]
-      message += user.exp_skill skill_name, exp
     elsif (match = (content.match /^出城( .+)?$/)).present?
       if match[1].nil?
         message += "请选择你要去的城市\n"
@@ -84,6 +80,22 @@ class Voyage
       message += user.buy_market_info
     elsif content == '卖'
       message += user.sell_market_info
+    end
+
+    if user.is_gm?
+      if (match = (content.match /^技能经验 (.+) (.+)/)).present?
+        skill_name = match[1]
+        exp = match[2]
+        message += user.exp_skill skill_name, exp
+      elsif (match = (content.match /^改名 (.+) (.+)/)).present?
+        previous_name = match[1]
+        current_name = match[2]
+        temp_user = User.where(:name => previous_name).first
+        if temp_user.present?
+          temp_user.save_value :name, current_name
+          message += "#{previous_name}已改名为#{current_name}"
+        end
+      end
     end
 
     if message == ''
