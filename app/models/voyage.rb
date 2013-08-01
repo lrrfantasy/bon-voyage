@@ -28,7 +28,7 @@ class Voyage
         user.clear_sys_stat
       end
     elsif user.at? SysStat.sell
-      if content == '全部卖出'
+      if content == '全部'
         message += user.sell_all
       elsif (match = (content.match /(.+) (.+)/)).present?
         message += user.sell_product match[1], match[2]
@@ -56,7 +56,7 @@ class Voyage
       user.personal_skills.each { |skill|
         message += "#{skill.name}：Lv.#{skill.level} Exp:#{skill.exp}/#{skill.level**2*100}\n"
       }
-    elsif !(match = (content.match /^学习技能( .+)?$/)).nil?
+    elsif !(match = (content.match /^学习( .+)?$/)).nil?
       if match[1].nil?
         message += "请选择你要学习的技能\n"
         user.profession.skills.each { |skill|
