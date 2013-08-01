@@ -98,17 +98,30 @@ class Voyage
     end
 
     if user.is_gm?
-      if (match = (content.match /^技能经验 (.+) (.+)/)).present?
-        skill_name = match[1]
-        exp = match[2]
-        message += user.exp_skill skill_name, exp
+      if (match = (content.match /^技能经验 (.+) (.+) (.+)/)).present?
+        user_name = match[1]
+        skill_name = match[2]
+        exp = match[3]
+        recepient = User.where(:name => user_name).first
+        if recepient.present?
+        message += "#{user_name}：" + recepient.exp_skill(skill_name, exp)
+        end
       elsif (match = (content.match /^改名 (.+) (.+)/)).present?
         previous_name = match[1]
         current_name = match[2]
-        temp_user = User.where(:name => previous_name).first
-        if temp_user.present?
-          temp_user.save_value :name, current_name
+        recepient = User.where(:name => previous_name).first
+        if recepient.present?
+          recepient.save_value :name, current_name
           message += "#{previous_name}已改名为#{current_name}"
+        end
+      elsif (match = (content.match /^给钱 (.+) (.+)/)).present?
+        user_name = match[1]
+        money = match[2]
+        recepient = User.where(:name => user_name).first
+        if recepient.present?
+          recepient.money += money.to_i
+          recepient.save
+          message += "#{user_name}已获得#{money}"
         end
       end
     end
