@@ -2,6 +2,7 @@
 class User < ActiveRecord::Base
   has_one :personal_action
   belongs_to :city
+  belongs_to :profession
   has_many :personal_skills
 
   has_many :user_product_relations
@@ -23,6 +24,7 @@ class User < ActiveRecord::Base
     save_value :money, 5000
     save_value :load, 100
     save_value :city, City.where(:name => '成都').first
+    save_value :profession, Profession.where(:name => '见习商人').first
     clear_sys_stat
   end
 
@@ -63,6 +65,7 @@ class User < ActiveRecord::Base
   def get_stat
     "姓名：#{self.name}\n" +
         "等级：#{self.level.to_s}\n" +
+        "职业：#{self.profession.name}\n" +
         "位置：#{self.city.name}\n" +
         "金钱：#{self.money}\n" +
         "装载：#{current_load}/#{self.load}"

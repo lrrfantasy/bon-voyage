@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130719084104) do
+ActiveRecord::Schema.define(:version => 20130801072815) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -57,6 +57,13 @@ ActiveRecord::Schema.define(:version => 20130719084104) do
     t.datetime "updated_at", :null => false
   end
 
+  create_table "professions", :force => true do |t|
+    t.string   "name"
+    t.integer  "fee"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "purchasings", :force => true do |t|
     t.integer  "user_id"
     t.integer  "product_id"
@@ -71,6 +78,13 @@ ActiveRecord::Schema.define(:version => 20130719084104) do
     t.integer  "max_level"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
+  end
+
+  create_table "specialities", :force => true do |t|
+    t.integer  "profession_id"
+    t.integer  "skill_id"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
   end
 
   create_table "user_product_relations", :force => true do |t|
@@ -89,6 +103,7 @@ ActiveRecord::Schema.define(:version => 20130719084104) do
     t.string   "sys_stat"
     t.integer  "money"
     t.integer  "city_id"
+    t.integer  "profession_id"
     t.integer  "load"
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false
