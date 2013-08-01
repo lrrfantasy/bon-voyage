@@ -74,6 +74,11 @@ class Voyage
       else
         message += user.go_to match[1].strip, start_time
       end
+    elsif (match = (content.match /^转职( .+)?$/)).present?
+      if match[1].nil?
+      else
+        message += user.change_profession match[1].strip
+      end
     elsif content == '增加装载'
       message += user.add_load
     elsif content == '买'

@@ -234,6 +234,22 @@ class User < ActiveRecord::Base
     Equation.accounting_sell(price, accounting_level)
   end
 
+  def change_profession(profession_name)
+    profession = Profession.where(:name => profession_name).first
+    message = '没有该职业'
+    if profession.present?
+      if self.money < profession.fee
+        message = '你的钱不够成为该职业'
+      else
+        save_value :profession, profession
+        self.money -= profession.fee
+        self.save
+        message = "支出#{profession.fee}\n你已成为#{profession.name}"
+      end
+    end
+    message
+  end
+
   def is_gm?
     self.user_wechat_id == 'client'
   end
