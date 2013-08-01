@@ -8,7 +8,7 @@ class Equation
   end
 
   def self.accounting_exp(profit)
-    (profit / 100).to_i
+    (profit / 1000).to_i + 1
   end
 
   def self.moving_time(distance)
