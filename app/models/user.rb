@@ -250,6 +250,7 @@ class User < ActiveRecord::Base
         message = "支出#{profession.fee}\n你已成为#{profession.name}"
       end
     end
+    clear_sys_stat
     message
   end
 
