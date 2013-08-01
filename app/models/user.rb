@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
   def new_user(name)
     save_value :name, name
     save_value :level, 1
-    save_value :money, 5000
+    save_value :money, 20000
     save_value :load, 100
     save_value :city, City.where(:name => '成都').first
     save_value :profession, Profession.where(:name => '见习商人').first
