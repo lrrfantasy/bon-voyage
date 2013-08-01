@@ -55,7 +55,7 @@ class Voyage
     elsif !(match = (content.match /^学习技能( .+)?$/)).nil?
       if match[1].nil?
         message += "请选择你要学习的技能\n"
-        Skill.all.each { |skill|
+        user.profession.skills.each { |skill|
           message += "#{skill.name}\n"
         }
         user.save_value :sys_stat, SysStat.intro_skill

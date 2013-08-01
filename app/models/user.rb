@@ -29,8 +29,13 @@ class User < ActiveRecord::Base
   end
 
   def learn_skill(skill_name)
-    message = "学习技能失败\n技能不存在或者你已经学会此技能"
-    if self.personal_skills.where(:name => skill_name).empty? && !Skill.where(:name => skill_name).empty?
+    if Skill.where(:name => skill_name).empty?
+      message = '技能不存在'
+    elsif !self.personal_skills.where(:name => skill_name).empty?
+      message = '你已经学会该技能'
+    elsif self.profession.skills.where(:name => skill_name).empty?
+      message = '你不能学习该技能'
+    else
       self.personal_skills.create(:name => skill_name, :level => 1, :exp => 0)
       message = "你成功学会了技能：#{skill_name}"
     end
@@ -41,7 +46,7 @@ class User < ActiveRecord::Base
   def intro_skill(skill_name)
     message = '技能不存在'
     clear_sys_stat
-    unless Skill.where(:name => skill_name).nil?
+    unless Skill.where(:name => skill_name).empty?
       skill = Skill.where(:name => skill_name).first
       message = "#{skill.name}\n#{skill.description}\n直接回复技能名学习"
       save_value :sys_stat, SysStat.learn_skill
