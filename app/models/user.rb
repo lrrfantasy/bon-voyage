@@ -253,6 +253,20 @@ class User < ActiveRecord::Base
     message
   end
 
+  def intro_profession(profession_name)
+    profession = Profession.where(:name => profession_name).first
+    message = '没有该职业'
+    clear_sys_stat
+    if profession.present?
+      message = "擅长技能：\n"
+      profession.skills.each { |skill|
+        message += "#{skill.name} "
+      }
+      save_value :sys_stat, SysStat.change_pro
+    end
+    message.strip
+  end
+
   def is_gm?
     self.user_wechat_id == 'client'
   end

@@ -7,6 +7,8 @@ class SysStat
   BUY = '买'
   SELL = '卖'
   ACTION = '行动'
+  CHANGE_PRO = '转职'
+  INTRO_PRO = '介绍职业'
 
   def self.register
     REGISTER
@@ -34,5 +36,13 @@ class SysStat
 
   def self.action
     ACTION
+  end
+
+  def self.change_pro
+    CHANGE_PRO
+  end
+
+  def self.intro_pro
+    INTRO_PRO
   end
 end

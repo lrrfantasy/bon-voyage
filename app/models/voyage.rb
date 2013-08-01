@@ -35,6 +35,10 @@ class Voyage
       elsif content == '返回'
         user.clear_sys_stat
       end
+    elsif user.at? SysStat.intro_pro
+      message += user.intro_profession(content)
+    elsif user.at? SysStat.change_pro
+      message += user.change_profession(content)
     elsif user.at? SysStat.action
       if content == '秒到' and user.is_gm?
         user.personal_action.last_time = '0'
@@ -76,6 +80,12 @@ class Voyage
       end
     elsif (match = (content.match /^转职( .+)?$/)).present?
       if match[1].nil?
+        message += "持有金钱：#{user.money}\n"
+        message += "请选择你要成为的职业\n"
+        Profession.all.each { |profession|
+          message += "#{profession.name} 费用：#{profession.fee}\n"
+        }
+        user.save_value :sys_stat, SysStat.intro_pro
       else
         message += user.change_profession match[1].strip
       end
