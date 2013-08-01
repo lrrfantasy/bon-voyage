@@ -188,7 +188,7 @@ class User < ActiveRecord::Base
     current_load = current_load()
 
     message = "持有金钱：#{self.money}\n"
-    message += "装载：#{current_load}/#{self.load}"
+    message += "装载：#{current_load}/#{self.load}\n"
     message += "市场里的商品：\n"
     all_products = self.city.city_product_relations
     all_products.all.reject { |relation|
