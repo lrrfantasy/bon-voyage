@@ -54,6 +54,7 @@ class Voyage
     elsif content == '技能'
       message += "拥有的技能：\n"
       user.personal_skills.each { |skill|
+        message += '*' unless user.profession.skills.where(:name => skill.name).empty?
         message += "#{skill.name}：Lv.#{skill.level} Exp:#{skill.exp}/#{skill.level**2*100}\n"
       }
     elsif !(match = (content.match /^学习( .+)?$/)).nil?
